@@ -17,29 +17,22 @@ import net.danburfoot.shared.InspectUtil.*;
 
 import net.danburfoot.shared.FiniteState.*;
 
+// This is a solution to Problem 14, "Longest Collatz sequence", of Project Euler
+// https://projecteuler.net/problem=14
 public class SimpleCollatz
 {
 	public enum CollStateEnum implements StringCodeStateEnum
 	{
 		InitMachine,
-		NextProbeVal,
-		ProbeInCache,
-		AddToStack,
-		PollStack,
-		StackEmpty,
-		IsCalcComplete;
+		AddNextProbeToStack,
+		NextQueryInCache("F->AQTS"),
+		AddResultToCache("PQS"),
+		AddQueryToStack("NQIC"),
+		PollQueryStack,
+		QueryStackEmpty("F->NQIC"),
+		IsNextAboveTarget("F->ANPTS"),
 		
-		// TODO: need to refactor this.
-		/*
-			Map<String, String> tmap = Util.treemap();
-			tmap.put("ICZ", "T->IC,F->DC");
-			
-			tmap.put("PIC", "F->ATS,T->ATC");
-			tmap.put("ATS", "PIC");
-			tmap.put("SE", "T->ICC,F->PIC");
-			tmap.put("ICC", "T->1,F->NPV");	
-		*/
-		
+		CalcComplete;
 		
 		public final String tCode;
 		
@@ -52,13 +45,20 @@ public class SimpleCollatz
 	
 	public static class CollSeqMachine extends FiniteStateMachineImpl
 	{
-		private TreeMap<Long, Long> _lenMap = Util.treemap();
+		// Cache of previously obtained result:
+		// Number --> Length of Collatz Sequence
+		private TreeMap<Long, Long> _cacheMap = Util.treemap();
 		
+		// Numbers < TargetValue that have not yet been calculated
 		private TreeSet<Long> _notInCache = Util.treeset();
 		
-		private LinkedList<Pair<Long, Long>> _stackList = Util.linkedlist();
+		// Stack of queries. When we try to calculate a number that's not in the cache,
+		// we put it on this stack and then try the next Collatz value.
+		// If that's not in the cache either, we push it onto the stack and continue
+		// the process until we get a hit.
+		private LinkedList<Long> _queryStack = Util.linkedlist();
 		
-		private long _targetValue = 100000L;
+		private final long _targetValue;
 		
 		public Enum[] getEnumStateList()
 		{
@@ -67,49 +67,33 @@ public class SimpleCollatz
 		
 		public CollSeqMachine()
 		{
-			super(CollStateEnum.InitMachine);
+			this(-1);
 		}	
 		
 		public CollSeqMachine(int maxn)
 		{
-			this();
+			super(CollStateEnum.InitMachine);
 			_targetValue = maxn;
 		}			
 		
 		public Map<Long, Long> getLengthMap()
 		{
-			return Collections.unmodifiableMap(_lenMap);	
-		}
-		
-		public Map<String, String> getCodedTransMap()
-		{
-			Map<String, String> tmap = Util.treemap();
-			tmap.put("ICZ", "T->IC,F->DC");
-			
-			tmap.put("PIC", "F->ATS,T->ATC");
-			tmap.put("ATS", "PIC");
-			tmap.put("SE", "T->ICC,F->PIC");
-			tmap.put("ICC", "T->1,F->NPV");
-			return tmap;
+			return Collections.unmodifiableMap(_cacheMap);	
 		}
 		
 		public void initMachine()
 		{
-			_lenMap.put(1L, 1L);
+			_cacheMap.put(1L, 1L);
 			
 			for(long p = 2L; p < _targetValue+100; p++)
 				{ _notInCache.add(p); }
 		}			
 		
-		public void nextProbeVal()
+		public void addNextProbeToStack()
 		{
-			// Gotcha: this doesn't work!!
-			// int probe = _lenMap.lastKey()+1;
 			long probe = getNextProbeVal();
 			
-			_stackList.add(Pair.build(probe, nextCollatz(probe)));
-			
-			// Util.pf("Probing %s\n", _stackList.peek());
+			_queryStack.add(probe);
 		}	
 		
 		private long getNextProbeVal()
@@ -117,38 +101,39 @@ public class SimpleCollatz
 			return _notInCache.first();
 		}
 				
-		public boolean probeInCache()
+		public boolean nextQueryInCache()
 		{
-			Pair<Long, Long> probepair = _stackList.peek();
-			// Util.pf("Probing pair %s\n", probepair);
-			return _lenMap.containsKey(probepair._2);
+			long nextcol = nextCollatz(_queryStack.peek());
+			
+			return _cacheMap.containsKey(nextcol);
 		}
 		
-		public void addToStack()
+		public void addQueryToStack()
 		{
-			Pair<Long, Long> probepair = _stackList.peek();
-			_stackList.addFirst(Pair.build(probepair._2, nextCollatz(probepair._2)));
+			_queryStack.addFirst(nextCollatz(_queryStack.peek()));
 		}
 		
-		public void addToCache()
+		public void addResultToCache()
 		{
-			Pair<Long, Long> probepair = _stackList.peek();
-			long cacheval = _lenMap.get(probepair._2);
-			_lenMap.put(probepair._1, cacheval+1);
-			_notInCache.remove(probepair._1);
+			long query = _queryStack.peek();
+			long nextcol = nextCollatz(query);
+			long cacheval = _cacheMap.get(nextcol);
+			
+			_cacheMap.put(query, cacheval+1);
+			_notInCache.remove(query);
 		}				
 		
-		public void pollStack()
+		public void pollQueryStack()
 		{
-			_stackList.poll();	
+			_queryStack.poll();	
 		}
 		
-		public boolean stackEmpty()
+		public boolean queryStackEmpty()
 		{
-			return _stackList.isEmpty();	
+			return _queryStack.isEmpty();	
 		}
 		
-		public boolean isCalcComplete()
+		public boolean isNextAboveTarget()
 		{
 			return getNextProbeVal() > _targetValue;	
 		}
@@ -158,7 +143,7 @@ public class SimpleCollatz
 			long maxlen = -1;
 			long maxkey = -1;
 			
-			for(Map.Entry<Long, Long> lenpair : _lenMap.entrySet())
+			for(Map.Entry<Long, Long> lenpair : _cacheMap.entrySet())
 			{
 				if(lenpair.getValue() > maxlen)
 				{
@@ -174,10 +159,10 @@ public class SimpleCollatz
 		public List<String> getDiagnosticInfo()
 		{
 			List<String> mylist = Util.vector();
-			mylist.add(Util.sprintf("Cache Size: %d", _lenMap.size()));
-			mylist.add(Util.sprintf("Top Cache Value: %d", _lenMap.isEmpty() ? -1 : _lenMap.lastKey()));
-			mylist.add(Util.sprintf("Stack Size: %d", _stackList.size()));
-			mylist.add(Util.sprintf("Stack: %s", _stackList));
+			mylist.add(Util.sprintf("Cache Size: %d", _cacheMap.size()));
+			mylist.add(Util.sprintf("Top Cache Value: %d", _cacheMap.isEmpty() ? -1 : _cacheMap.lastKey()));
+			mylist.add(Util.sprintf("Stack Size: %d", _queryStack.size()));
+			mylist.add(Util.sprintf("Stack: %s", _queryStack));
 			return mylist;
 		}
 	}
@@ -200,7 +185,14 @@ public class SimpleCollatz
 		
 		return 1 + directLengthCalc(nextCollatz(n));
 		
+	}
+	
+	public static String getSequenceString(long n)
+	{
+		if(n == 1)
+			{ return "1"; }
 		
+		return n + "->" + getSequenceString(nextCollatz(n));
 	}
 	
 }

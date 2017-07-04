@@ -144,6 +144,27 @@ public class DiagramCli
 		}
 	}	
 	
+	public static class RunCollatzMachine extends ArgMapRunnable
+	{
+		
+		public void runOp()
+		{
+			int maxvalue = _argMap.getInt("maxvalue", 100);
+			
+			CollSeqMachine csmach = new CollSeqMachine(maxvalue);
+			
+			csmach.run2Completion();
+			
+			Pair<Long, Long> respair = csmach.getResult();
+			
+			Util.pf("Result is %d::%d\n", respair._1, respair._2);
+			
+			Util.pf("%s\n", SimpleCollatz.getSequenceString(respair._1));
+			
+		}
+	}
+	
+	
 	public static class CreateDiagramList extends ArgMapRunnable
 	{
 		
@@ -167,9 +188,9 @@ public class DiagramCli
 		{
 			return Util.listify(
 				// new MinTreeCalcMachine(),
-				//  new CollSeqMachine()
+				new CollSeqMachine()
 				// new HeapSortMachine()
-				new MergeSortMachine()
+				// new MergeSortMachine()
 			);
 		}
 	}
