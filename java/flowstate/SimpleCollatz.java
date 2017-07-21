@@ -1,20 +1,10 @@
 
 package net.danburfoot.flowstate; 
 
-import java.io.*;
 import java.util.*;
-import java.util.regex.*;
-import java.util.stream.*;
-import java.sql.*;
 
-import lifedesign.basic.*;
-import lifedesign.basic.LifeUtil.*;
-
-import net.danburfoot.shared.*;
+import net.danburfoot.shared.Util;
 import net.danburfoot.shared.Util.*;
-import net.danburfoot.shared.DiagramUtil.*;
-import net.danburfoot.shared.InspectUtil.*;
-
 import net.danburfoot.shared.FiniteState.*;
 
 // This is a solution to Problem 14, "Longest Collatz sequence", of Project Euler
@@ -138,7 +128,7 @@ public class SimpleCollatz
 			return getNextProbeVal() > _targetValue;	
 		}
 
-		public Pair<Long, Long> getResult()
+		public long getMaxCollatz()
 		{
 			long maxlen = -1;
 			long maxkey = -1;
@@ -152,7 +142,7 @@ public class SimpleCollatz
 				}
 			}
 			
-			return Pair.build(maxkey, maxlen);
+			return maxkey;
 		}
 		
 		@Override
@@ -195,4 +185,24 @@ public class SimpleCollatz
 		return n + "->" + getSequenceString(nextCollatz(n));
 	}
 	
+	
+	public static class RunCollatzMachine extends ArgMapRunnable
+	{
+		
+		public void runOp()
+		{
+			int maxvalue = _argMap.getInt("maxvalue", 100);
+			
+			CollSeqMachine csmach = new CollSeqMachine(maxvalue);
+			
+			csmach.run2Completion();
+			
+			long maxcoll = csmach.getMaxCollatz();
+			
+			Util.pf("Result is %d\n", maxcoll);
+			
+			Util.pf("%s\n", SimpleCollatz.getSequenceString(maxcoll));
+			
+		}
+	}
 }

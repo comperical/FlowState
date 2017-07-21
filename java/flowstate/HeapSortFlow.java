@@ -1,20 +1,9 @@
 
 package net.danburfoot.flowstate; 
 
-import java.io.*;
 import java.util.*;
-import java.util.regex.*;
-import java.util.stream.*;
-import java.sql.*;
 
-import lifedesign.basic.*;
-import lifedesign.basic.LifeUtil.*;
-
-import net.danburfoot.shared.*;
-import net.danburfoot.shared.Util.*;
-import net.danburfoot.shared.DiagramUtil.*;
-import net.danburfoot.shared.InspectUtil.*;
-
+import net.danburfoot.shared.Util;
 import net.danburfoot.shared.FiniteState.*;
 
 public class HeapSortFlow
@@ -47,11 +36,6 @@ public class HeapSortFlow
 		// This is the index of the state we are looking at. 
 		// The study operation could be the result of either a poll() or an add()
 		private int _studyPosition = -1;
-		
-		public Enum[] getEnumStateList()
-		{
-			return HeapSortMachineState.values();	
-		}
 		
 		public HeapSortMachine()
 		{

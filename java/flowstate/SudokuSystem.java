@@ -1,21 +1,23 @@
 
 package net.danburfoot.flowstate; 
 
-import java.io.*;
 import java.util.*;
-import java.util.regex.*;
-import java.util.stream.*;
-import java.sql.*;
 
-import lifedesign.basic.*;
-import lifedesign.basic.LifeUtil.*;
-
-import net.danburfoot.shared.*;
+import net.danburfoot.shared.Util;
+import net.danburfoot.shared.Pair;
+import net.danburfoot.shared.CollUtil;
+import net.danburfoot.shared.FileUtils;
 import net.danburfoot.shared.Util.*;
-import net.danburfoot.shared.DiagramUtil.*;
-import net.danburfoot.shared.InspectUtil.*;
 import net.danburfoot.shared.FiniteState.*;
 
+/**
+ * This code is a Sudoku solver. It is based on Peter Norvig's solution, written in Python:
+ * http://norvig.com/sudoku.html
+ * The point of this implementation is to demonstrate the FlowState programming tool.
+ * The solver is composed of 2 Finite State Machines:
+ * - SudokuGridMachine checks a specific grid for contradictions
+ * - SudokuSearchMachine searches through the space of grids, looking for one that is a solution.
+ */
 public class SudokuSystem
 {
 	// Full list of all the squares
@@ -101,6 +103,8 @@ public class SudokuSystem
 		}		
 	}
 	
+	// Simple representation of a Sudoku position
+	// Suitable for putting in a TreeMap
 	public static class SudokuPos implements Comparable<SudokuPos>
 	{
 		public final char Row;
@@ -128,8 +132,6 @@ public class SudokuSystem
 				{ return that.Row - this.Row; }
 			
 			return that.Col - this.Col;
-			
-			// return strForm.compareTo(that.strForm);	
 		}
 	}
 	
@@ -138,65 +140,50 @@ public class SudokuSystem
 		InitGrid,	
 		
 		// Any more items in elimination stack?
-		HaveMoreElimItem,
+		HaveMoreElimItem("F->HMAI"),
 		
 		// Is the next item in elimination stack relevant?
-		IsNextElimRelevant,
+		IsNextElimRelevant("F->PES"),
 		
 		// Run next elimination
 		DoNextElimination,
 		
 		// Did we just eliminate the last option?
-		EliminatedLastOpt,			
+		EliminatedLastOpt("T->CC"),			
 		
 		// If we eliminated down to last result, then add eliminate options for peers
 		MaybeAddPeerElim, 
 		
-		HaveUnitContradiction,
+		HaveUnitContradiction("T->CC"),
 		
 		DoUnitAssign,
 		
 		// Poll elimination stack
-		PollElimStack,				
+		PollElimStack("HMEI"),			
 		
 		// Do we have any more assign ops?
-		HaveMoreAssignItem,
+		HaveMoreAssignItem("F->OC"),
 		
 		// Do the next assignation
-		DoNextAssign,		
+		DoNextAssign("HMEI"),		
 		
-		OkayComplete,
+		OkayComplete("0"),
 		ContradictComplete;
 		
+		public final String tCode;
 		
-		public String getTransitionCode()
-		{
-			switch(this)
-			{
-				case HaveMoreElimItem:		return "F->HMAI";
-					
-				case IsNextElimRelevant:	return "F->PES";
-					
-				case EliminatedLastOpt:		return "T->CC";
-					
-				// NB BOTH of these go back to have more elim, not a typo
-				case PollElimStack:		return "HMEI";
-				case DoNextAssign:		return "HMEI";
-					
-				case HaveMoreAssignItem:	return "F->OC";
-					
-				case HaveUnitContradiction:	return "T->CC";
-					
-				case OkayComplete:		return "0";
-					
-				default:			return ""; 
-			}
-		}
+		SdGridState() 			{  tCode  = ""; }	
+		SdGridState(String tc) 		{  tCode = tc; }	
+		
+		public String getTransitionCode()  { return tCode; }		
 	}		
 	
 	
 	public static class SudokuGridMachine extends FiniteStateMachineImpl
 	{
+		// Map representing possible values for each position
+		// The String is really a Set<Integer>
+		// Eg if all values are possible, the string will be "123456789"
 		private Map<SudokuPos, String> _valMap = Util.treemap();
 		
 		// Stack of position x value combinations to be ELIMINATED
@@ -204,12 +191,6 @@ public class SudokuSystem
 		
 		// Stack of positions waiting to be ASSIGNED
 		private LinkedList<Pair<SudokuPos, Integer>> _assignStack = Util.linkedlist();
-		
-		
-		public Enum[] getEnumStateList()
-		{
-			return SdGridState.values();	
-		}
 		
 		public SudokuGridMachine()
 		{
@@ -262,7 +243,9 @@ public class SudokuSystem
 		}
 		
 		public void pollElimStack()
-		{ _elimStack.poll(); }			
+		{ 
+			_elimStack.poll(); 
+		}			
 		
 		public boolean haveMoreAssignItem()
 		{
@@ -274,7 +257,7 @@ public class SudokuSystem
 			return !_elimStack.isEmpty();
 		}
 		
-		// If the position is not in the valid set anyway, it is pointless.
+		// If the position is not in the valid set anyway, it is not relevant.
 		public boolean isNextElimRelevant()
 		{
 			return _valMap.get(nextElimPos()).contains(nextElimVal()+"");
@@ -283,7 +266,13 @@ public class SudokuSystem
 		// Actually remove the value from the position-valid set.
 		public void doNextElimination()
 		{
-			Util.apply2Val(_valMap, nextElimPos(), s -> s.replace(nextElimVal()+"", ""));
+			SudokuPos nextpos  = nextElimPos();
+			Integer nextval = nextElimVal();
+			
+			// Set removal as string operation
+			String newvalstr = _valMap.get(nextpos).replace(nextval+"", "");
+			
+			_valMap.put(nextpos, newvalstr);
 		}
 		
 		// Did we kill off last possible value for the position?
@@ -444,15 +433,10 @@ public class SudokuSystem
 	public enum SearcherState implements StringCodeStateEnum
 	{
 		HaveAnotherGrid,
-		
 		PollCurGrid,
-		
 		RunGridMachine,
-		
 		GridFailed, 
-		
 		GridSolved,
-		
 		QueueNextGrid,
 		
 		SolvedComplete,
@@ -484,11 +468,6 @@ public class SudokuSystem
 		
 		private int _gridCheckTotal = 0;
 		
-		
-		public Enum[] getEnumStateList()
-		{
-			return SearcherState.values();	
-		}
 		
 		public SudokuSearchMachine()
 		{
@@ -571,31 +550,12 @@ public class SudokuSystem
 		}
 	}
 	
-	public static class CreateDiagram extends ArgMapRunnable
-	{
-		public void runOp()
-		{
-			// Build the finite state machine
-			(new FsmGraphWrapper(new SudokuGridMachine())).runOp();		
-			
-			(new FsmGraphWrapper(new SudokuSearchMachine())).runOp();			
-		}
-		
-	}		
-	
-	
 	public static class RunSudokuMachine extends ArgMapRunnable
 	{
 		
 		public void runOp()
 		{
-			// Scanner sc = new Scanner(System.in);
-			
-			// Util.pf("Enter Sudoku Grid: ");
-			
 			String grid = "003020600900305001001806400008102900700000008006708200002609500800203009005010300";
-			
-			// sc.close();
 			
 			SudokuGridMachine sgmachine = new SudokuGridMachine(grid);
 			
@@ -626,52 +586,8 @@ public class SudokuSystem
 			ssmachine.run2Completion();
 			
 			ssmachine.printResult();
-			
 		}
 	}		
-	
-	public static class TestConcatSpeed extends ArgMapRunnable
-	{
-		
-		public void runOp()
-		{
-			int num2run = 10_000_000;
-			
-			Integer[] idata = getIntData(num2run);
-			
-			double startup = Util.curtime();
-			
-			
-			for(int i = 0; i < idata.length; i++)
-			{
-				Integer r = idata[i];
-				
-				// String s = r+"";
-				
-				String s = r.toString();
-				
-				//mylist.add(s);
-			}
-			
-			Util.pf("Took %.03f sec to convert %d numbers\n", (Util.curtime()-startup)/1000, num2run);
-			
-		}
-		
-		public Integer[] getIntData(int num2run)
-		{
-			Random jrand = new Random(12345);
-			
-			Integer[] data = new Integer[num2run];
-			
-			for(int i = 0; i < num2run; i++)
-			{
-				data[i] = jrand.nextInt(10);	
-			}
-			
-			return data;
-			
-		}
-	}			
 	
 	
 	public static class RunSearchFromFile extends ArgMapRunnable
@@ -742,35 +658,4 @@ public class SudokuSystem
 			}
 		}
 	}		
-	
-	public static void main(String[] args) throws Exception
-	{
-		
-		// {{{
-		ArgMap amap = ArgMap.getClArgMap(args);
-		
-		String simpleclass = args[1];
-		String fullclass = Util.sprintf("%s$%s", SudokuSystem.class.getName(), simpleclass);
-		
-		ArgMapRunnable amr;
-		
-		try {
-			amr = (ArgMapRunnable) Class.forName(fullclass).newInstance();
-			
-			
-			
-		} catch (Exception ex) {
-			
-			Util.pferr("Error creating ArgMapRunnable from class %s\n", fullclass);
-			Util.pferr("%s\n", ex.getMessage());
-			return;
-		}
-		
-		amr.initFromArgMap(amap);
-		amr.runOp();
-		
-		// }}}
-	}
-	
-
 }

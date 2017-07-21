@@ -1,20 +1,12 @@
 
 package net.danburfoot.flowstate; 
 
-import java.io.*;
 import java.util.*;
-import java.util.regex.*;
-import java.util.stream.*;
-import java.sql.*;
 
-import lifedesign.basic.*;
-import lifedesign.basic.LifeUtil.*;
 
 import net.danburfoot.shared.*;
 import net.danburfoot.shared.Util.*;
-import net.danburfoot.shared.TimeUtil.*;
 import net.danburfoot.shared.DiagramUtil.*;
-import net.danburfoot.shared.InspectUtil.*;
 import net.danburfoot.shared.FiniteState.*;
 
 public class RainbowSystem
@@ -119,8 +111,6 @@ public class RainbowSystem
 		// Current color of links
 		private Map<Pair<CityId, CityId>, String> _curColorMap = Util.treemap();
 		
-		
-		public Enum[] getEnumStateList() { return RainbowState.values(); }
 		
 		public RainbowMachine()
 		{

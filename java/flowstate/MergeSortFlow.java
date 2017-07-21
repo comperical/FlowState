@@ -3,11 +3,7 @@ package net.danburfoot.flowstate;
 
 import java.util.*;
 
-import net.danburfoot.shared.*;
-import net.danburfoot.shared.Util.*;
-import net.danburfoot.shared.DiagramUtil.*;
-import net.danburfoot.shared.InspectUtil.*;
-
+import net.danburfoot.shared.Util;
 import net.danburfoot.shared.FiniteState.*;
 
 public class MergeSortFlow
@@ -64,11 +60,6 @@ public class MergeSortFlow
 		private LinkedList<T> _rghtSub;
 		
 		private LinkedList<T> _theResult = Util.linkedlist();
-		
-		public Enum[] getEnumStateList()
-		{
-			return MergeSortState.values();	
-		}
 		
 		// Use for diagram purposes only
 		public MergeSortMachine()

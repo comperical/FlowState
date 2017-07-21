@@ -1,19 +1,11 @@
 
 package net.danburfoot.flowstate; 
 
-import java.io.*;
 import java.util.*;
-import java.util.regex.*;
-import java.util.stream.*;
-import java.sql.*;
 
-import lifedesign.basic.*;
-import lifedesign.basic.LifeUtil.*;
-
-import net.danburfoot.shared.*;
-import net.danburfoot.shared.Util.*;
-import net.danburfoot.shared.DiagramUtil.*;
-import net.danburfoot.shared.InspectUtil.*;
+import net.danburfoot.shared.Util;
+import net.danburfoot.shared.CollUtil;
+import net.danburfoot.shared.FileUtils;
 import net.danburfoot.shared.FiniteState.*;
 
 // Code to solve the IPSC 2008 Problem I
@@ -24,32 +16,20 @@ public class MinTreeSystem
 	public enum MinTreeCalcState implements StringCodeStateEnum
 	{
 		SetupEdgeList,
-		
 		InitComponentMap,
-		
-		HaveAnotherMstEdge,
-		
+		HaveAnotherMstEdge("F->CC"),
 		CalcEdgeContribution,
-		
 		UpdateComponentMap, 
-		
 		CheckInvariant,
-		
-		PollMstEdge,
-		
+		PollMstEdge("HAME"),
 		CalcComplete;
-
-		public String getTransitionCode()
-		{
-			switch(this)
-			{
-				case HaveAnotherMstEdge: 	return "F->CC"; 
-					
-				case PollMstEdge:		return "HAME";
-
-				default: 			return "";
-			}
-		}
+		
+		public final String tCode;
+		
+		MinTreeCalcState() 			{  tCode  = ""; }	
+		MinTreeCalcState(String tc) 		{  tCode = tc; }	
+		
+		public String getTransitionCode()  { return tCode; }		
 	}
 	
 	public static class MinTreeCalcMachine extends FiniteStateMachineImpl
@@ -62,11 +42,6 @@ public class MinTreeSystem
 		private Map<Integer, Integer> _componentMap = Util.treemap();
 		
 		private long _minGraphResult = 0L;
-		
-		public Enum[] getEnumStateList()
-		{
-			return MinTreeCalcState.values();	
-		}
 		
 		public MinTreeCalcMachine()
 		{

@@ -1,12 +1,30 @@
 #!/usr/bin/python
 
-import re, os, sys, fileinput, DiaComp
+import re, os, sys, fileinput, CompJava
 
+def findOuterClass(innerclass):
+	
+	targsuffix = "%s.class" % (innerclass)
+	
+	for (dirpath, dirnames, filenames) in os.walk("../jclass"):
+		
+		for onefile in filenames:
+			if not onefile.endswith(targsuffix):
+				continue
+				
+			print "OneFile is %s" % (onefile)
+			
+			return onefile.split("$")[0]
+			
+			
+	assert False, "Could not found inner class with name %s" % (innerclass)
+		
+	
  	
-def runClass(extrainfo):
+def runClass(outerclass, innerclass, extrainfo):
 	
-	runcall = "java -cp %s:../jclass net.danburfoot.flowstate.DiagramCli %s" % (DiaComp.getCrmClassPath(), extrainfo)
-	
+	runcall = "java -cp ../jclass net.danburfoot.flowstate.EntryPoint %s %s %s" % (outerclass, innerclass, extrainfo)
+
 	print runcall
 	
 	os.system(runcall)
@@ -14,8 +32,12 @@ def runClass(extrainfo):
 
 if __name__ == "__main__":
 
-	extrainfo = " ".join(sys.argv[1:])
+	extrainfo = " ".join(sys.argv[2:])
 	
-	runClass(extrainfo)
+	innerclass = sys.argv[1]
+	
+	outerclass = findOuterClass(innerclass)
+	
+	runClass(outerclass, innerclass, extrainfo)
 
 

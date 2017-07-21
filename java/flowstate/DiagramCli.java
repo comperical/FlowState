@@ -11,46 +11,20 @@ import java.sql.*;
 import net.danburfoot.shared.*;
 import net.danburfoot.shared.Util.*;
 import net.danburfoot.shared.DiagramUtil.*;
-import net.danburfoot.shared.InspectUtil.*;
 
 import net.danburfoot.shared.FiniteState.*;
-
-import lifedesign.basic.*;
 
 import net.danburfoot.flowstate.MinTreeSystem.*;
 import net.danburfoot.flowstate.SimpleCollatz.*;
 import net.danburfoot.flowstate.HeapSortFlow.*;
 import net.danburfoot.flowstate.MergeSortFlow.*;
+import net.danburfoot.flowstate.SudokuSystem.*;
+import net.danburfoot.flowstate.LargeSumFlow.*;
 
 
 // CLI interface to all the Diagram tools.
 public class DiagramCli
 {
-	public static class RunSimpleColl extends ArgMapRunnable
-	{
-		public void runOp()
-		{
-			int maxn = _argMap.getInt("maxn", 10000);
-			
-			CollSeqMachine csm = new CollSeqMachine(maxn);
-			csm.run2Completion();
-			
-			Util.pf("result = %s\n", csm.getResult());
-			
-			/*
-			Map<Integer, Integer> lenmap = csm.getLengthMap();
-			
-			for(int start : lenmap.keySet())
-			{
-				int directlen = SimpleCollatz.directLengthCalc(start);
-				
-				Util.pf("Start Pt %d --> %d --> %d\n", start, lenmap.get(start), directlen);	
-			}
-				
-			*/
-		}
-	}
-	
 	public static class TestEntryCode extends ArgMapRunnable
 	{
 		public void runOp()
@@ -144,26 +118,7 @@ public class DiagramCli
 		}
 	}	
 	
-	public static class RunCollatzMachine extends ArgMapRunnable
-	{
-		
-		public void runOp()
-		{
-			int maxvalue = _argMap.getInt("maxvalue", 100);
-			
-			CollSeqMachine csmach = new CollSeqMachine(maxvalue);
-			
-			csmach.run2Completion();
-			
-			Pair<Long, Long> respair = csmach.getResult();
-			
-			Util.pf("Result is %d::%d\n", respair._1, respair._2);
-			
-			Util.pf("%s\n", SimpleCollatz.getSequenceString(respair._1));
-			
-		}
-	}
-	
+
 	
 	public static class CreateDiagramList extends ArgMapRunnable
 	{
@@ -188,8 +143,10 @@ public class DiagramCli
 		{
 			return Util.listify(
 				// new MinTreeCalcMachine(),
-				new CollSeqMachine()
-				// new HeapSortMachine()
+				// new CollSeqMachine()
+				new SudokuGridMachine(),
+				new SudokuSearchMachine()
+				//new LargeSumMachine()
 				// new MergeSortMachine()
 			);
 		}
