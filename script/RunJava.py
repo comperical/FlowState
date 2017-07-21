@@ -55,11 +55,9 @@ if __name__ == "__main__":
 
 	extrainfo = " ".join(sys.argv[2:])
 	
-	innerclass = sys.argv[1]
-	
-	# outerclass = findOuterClass(innerclass)
-	
-	[outerclass, innerclass] = getMainInner("../jclass", innerclass)
+	targetclass = sys.argv[1]
+		
+	[outerclass, innerclass] = getMainInner("../jclass", targetclass)
 	
 	runClass(outerclass, innerclass, extrainfo)
 
