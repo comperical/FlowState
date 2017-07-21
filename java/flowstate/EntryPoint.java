@@ -3,6 +3,10 @@ package net.danburfoot.flowstate;
 
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
+import java.util.stream.*;
+import java.sql.*;
+
 
 import net.danburfoot.shared.*;
 import net.danburfoot.shared.Util.*;
@@ -15,9 +19,82 @@ import net.danburfoot.flowstate.SimpleCollatz.*;
 import net.danburfoot.flowstate.HeapSortFlow.*;
 import net.danburfoot.flowstate.MergeSortFlow.*;
 import net.danburfoot.flowstate.SudokuSystem.*;
+import net.danburfoot.flowstate.LargeSumFlow.*;
 
+
+// CLI interface to all the Diagram tools.
 public class EntryPoint
 {
+	public static class TestEntryCode extends ArgMapRunnable
+	{
+		public void runOp()
+		{
+			Util.pf("Hello, Flow State\n");	
+		}
+	}
+	
+	public static class RunMinTree4File extends ArgMapRunnable
+	{
+		public void runOp()
+		{
+			boolean isbig = _argMap.getBit("isbig", false);
+			
+			String filename = Util.sprintf("i%d.in", (isbig ? 2 : 1));
+			
+			LinkedList<String> mainlist = Util.cast(
+							FileUtils.getReaderUtil()
+								.setFile("/userdata/lifecode/datadir/ipsc/2008/" + filename)
+								.useLinkedList(true)
+								.readLineListE());
+									
+			int numproblem = Integer.valueOf(mainlist.poll());
+			
+			for(int i : Util.range(numproblem))
+			{
+				List<String> oneprob = readProblemDesc(mainlist);	
+				
+				
+				MinTreeCalcMachine mtcm = new MinTreeCalcMachine();
+				mtcm.setInputData(oneprob);
+				
+				mtcm.run2Completion();
+				
+				Util.pf("%d\n", mtcm.getResult());
+			}
+			
+		}
+		
+		private List<String> readProblemDesc(LinkedList<String> gimplist)
+		{
+			Util.massert(gimplist.peek().trim().isEmpty());
+			
+			gimplist.poll();
+			
+			int nodecount = Integer.valueOf(gimplist.peek().trim());
+			
+			List<String> plist = Util.vector();
+			
+			while(plist.size() < nodecount)
+				{ plist.add(gimplist.poll()); }
+				
+			Util.massert(gimplist.isEmpty() || gimplist.peek().trim().isEmpty());
+			
+			return plist;
+		}
+	}	
+	
+	
+	public static class RunMinTree extends ArgMapRunnable
+	{
+		public void runOp()
+		{
+			// MinTreeCalcMachine rmachine = MinTreeSystem.getSing();
+			// CommLineFsmRunner crunner = new CommLineFsmRunner(rmachine);
+			// crunner.runFromCommLine();
+		}
+	}	
+	
+	
 	public static class RunCommLine extends ArgMapRunnable
 	{
 		public void runOp()
@@ -40,6 +117,8 @@ public class EntryPoint
 			}
 		}
 	}	
+	
+
 	
 	public static class CreateDiagramList extends ArgMapRunnable
 	{
@@ -67,21 +146,111 @@ public class EntryPoint
 				// new CollSeqMachine()
 				new SudokuGridMachine(),
 				new SudokuSearchMachine()
+				//new LargeSumMachine()
 				// new MergeSortMachine()
 			);
 		}
 	}
 	 
 	
+	public static class HeapSortTest extends ArgMapRunnable
+	{
+		public void runOp()
+		{
+			int listsize = _argMap.getInt("listsize", 100);
+			
+			List<Integer> datalist = getDataList(listsize);
+			
+			List<Integer> sortlist = Util.arraylist(datalist);
+			Collections.sort(sortlist);
+			
+			// Collections.shuffle(rlist);
+			
+			double startup = Util.curtime();
+			
+			HeapSortMachine<Integer> hsm = new HeapSortMachine<Integer>();
+			
+			for(int r : datalist)
+				{ hsm.add(r); }	
+			
+			List<Integer> reslist = hsm.getResult();
+			
+			double sorttime = Util.curtime() - startup;
+			
+			Util.massert(reslist.equals(sortlist), "Sorting mistake");
+			
+			Util.pf("Sorted %d elements okay, took %.03f sec\n", reslist.size(), sorttime/1000);
+		}
+		
+		
+		private List<Integer> getDataList(int n)
+		{
+			Random r = new Random();
+			
+			List<Integer> dlist = Util.vector();
+			
+			while(dlist.size() < n)
+				{ dlist.add(r.nextInt()); }	
+			
+			return dlist;
+		}
+	}
+	
+	public static class MergeSortTest extends ArgMapRunnable
+	{
+		public void runOp()
+		{
+			int listsize = _argMap.getInt("listsize", 100);
+			
+			ArrayList<Integer> datalist = getDataList(listsize);
+			
+			List<Integer> sortlist = Util.arraylist(datalist);
+			Collections.sort(sortlist);
+			
+			// Collections.shuffle(rlist);
+			
+			double startup = Util.curtime();
+			
+			List<Integer> reslist = MergeSortFlow.runMergeSort(datalist);
+			
+			double sorttime = Util.curtime() - startup;
+			
+			// Util.pf("%s\n%s\n", sortlist, reslist);
+			
+			Util.massert(reslist.equals(sortlist), "Sorting mistake");
+			
+			Util.pf("Sorted %d elements okay, took %.03f sec\n", reslist.size(), sorttime/1000);
+		}
+		
+		
+		private ArrayList<Integer> getDataList(int n)
+		{
+			Random r = new Random();
+			
+			ArrayList<Integer> dlist = Util.arraylist();
+			
+			while(dlist.size() < n)
+				{ dlist.add(r.nextInt()); }	
+			
+			return dlist;
+		}
+	}	
+	
+	
+	
 	public static void main(String[] args) throws Exception
 	{
+		
 		// {{{
 		ArgMap amap = ArgMap.getClArgMap(args);
 		
-		String outerclass = args[0];
-		String innerclass = args[1]; 
-		String fullclass = Util.sprintf("net.danburfoot.flowstate.%s$%s", outerclass, innerclass); 
-		
+		// The first argument is the outer class
+		String fullclass = args[0];
+
+		// Optionally specify an inner class
+		if(amap.containsKey("innerclass"))
+			{ fullclass = fullclass + "$" + amap.getStr("innerclass"); }
+				
 		ArgMapRunnable amr;
 		
 		try {

@@ -342,11 +342,4 @@ public class DiagramUtil
 			return Util.sprintf("%s->%s [label=\"%s\"];", src, dst, label);
 		}
 	}
-
-	
-	
-	
-
-
-
 }
