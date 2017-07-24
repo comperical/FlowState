@@ -14,29 +14,27 @@ public class HeapSortFlow
 		HaveAnotherNewItem("F->HR"),
 		
 		AddNewItem,
-		KidLowerParent("F->HANI"),
-		SwapKidParent,
-		MoveCursorUp("KLP"),
+		CursorBelowParent("F->HANI"),
+		SwapCursorWithParent,
+		MoveCursorUp("CBP"),
 		
 		HeapReady,
 		
 		IsHeapEmpty("T->SC"),
 		AddHeapTop2Result,
+		SetCursorToZero,
 
-		NeedAnotherSwapDown("F->IHE"),
+		CursorPosHasKid("F->IHE"),
 		HaveLeftKid("F->SDR"),
 		HaveRghtKid("F->SDL"),
-		LeftLowerRght("T->SDL,F->SDR"),
+		LeftBelowRght("T->SDL,F->SDR"),
 		
 		SwapDownLeft,
-		MoveCursorDownLeft("NASD"),
+		MoveCursorDownLeft("CPHK"),
 		
 		SwapDownRght,
-		MoveCursorDownRght("NASD"),
-		
-		//HolePosHasKid("F->RC"),
-		//SwapSiftDown("HPHK"),	
-		
+		MoveCursorDownRght("CPHK"),
+				
 		SortComplete;
 		
 		public final String tCode;
@@ -120,7 +118,7 @@ public class HeapSortFlow
 			Util.pf("%s\n", _heapList);	
 		}
 		
-		public boolean kidLowerParent()
+		public boolean cursorBelowParent()
 		{
 			T kid = _heapList.get(_cursorPosition);
 			T par = _heapList.get(getParentPosition());
@@ -129,7 +127,7 @@ public class HeapSortFlow
 			return kid.compareTo(par) < 0;
 		}
 				
-		public void swapKidParent()
+		public void swapCursorWithParent()
 		{
 			swapPosition(getParentPosition());
 		}
@@ -160,10 +158,14 @@ public class HeapSortFlow
 			
 			// Prepare for sift-down operations
 			_heapList.set(0, null);
+		}
+		
+		public void setCursorToZero()
+		{
 			_cursorPosition = 0;
 		}
 		
-		public boolean needAnotherSwapDown()
+		public boolean cursorPosHasKid()
 		{
 			// Util.pf("Have LKid=%b, Rkid=%b\n", haveLeftKid(), haveRghtKid());
 			
@@ -200,7 +202,7 @@ public class HeapSortFlow
 			_cursorPosition = getLeftKidPos();	
 		}		
 		
-		public boolean leftLowerRght()
+		public boolean leftBelowRght()
 		{
 			T leftkid = _heapList.get(getLeftKidPos());
 			T rghtkid = _heapList.get(getRghtKidPos());
