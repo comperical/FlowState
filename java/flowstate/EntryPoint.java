@@ -144,10 +144,11 @@ public class EntryPoint
 			return Util.listify(
 				// new MinTreeCalcMachine(),
 				// new CollSeqMachine()
-				new SudokuGridMachine(),
-				new SudokuSearchMachine()
+				// new SudokuGridMachine(),
+				// new SudokuSearchMachine()
 				//new LargeSumMachine()
 				// new MergeSortMachine()
+				new HeapSortMachine()
 			);
 		}
 	}
@@ -163,23 +164,18 @@ public class EntryPoint
 			
 			List<Integer> sortlist = Util.arraylist(datalist);
 			Collections.sort(sortlist);
-			
-			// Collections.shuffle(rlist);
-			
+					
 			double startup = Util.curtime();
 			
-			HeapSortMachine<Integer> hsm = new HeapSortMachine<Integer>();
-			
-			for(int r : datalist)
-				{ hsm.add(r); }	
-			
-			List<Integer> reslist = hsm.getResult();
+			HeapSortMachine<Integer> hsm = new HeapSortMachine<Integer>(datalist);
+			hsm.run2Completion();						
 			
 			double sorttime = Util.curtime() - startup;
 			
-			Util.massert(reslist.equals(sortlist), "Sorting mistake");
+			Util.massert(datalist.equals(sortlist), 
+				"Sorting mistake, data is %s, sorted is %s", datalist, sortlist);
 			
-			Util.pf("Sorted %d elements okay, took %.03f sec\n", reslist.size(), sorttime/1000);
+			Util.pf("Sorted %d elements okay, took %.03f sec\n", datalist.size(), sorttime/1000);
 		}
 		
 		
@@ -206,9 +202,7 @@ public class EntryPoint
 			
 			List<Integer> sortlist = Util.arraylist(datalist);
 			Collections.sort(sortlist);
-			
-			// Collections.shuffle(rlist);
-			
+						
 			double startup = Util.curtime();
 			
 			List<Integer> reslist = MergeSortFlow.runMergeSort(datalist);

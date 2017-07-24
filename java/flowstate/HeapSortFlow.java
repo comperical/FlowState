@@ -10,16 +10,35 @@ public class HeapSortFlow
 {
 	public enum HeapSortMachineState implements StringCodeStateEnum
 	{
-		AddItemState,
-		KidOutOfOrder("F->RC"),
+		InitMachine,
+		HaveAnotherNewItem("F->HR"),
+		
+		AddNewItem,
+		KidLowerParent("F->HANI"),
 		SwapKidParent,
-		Bounce2Parent("KOOO"),
+		MoveCursorUp("KLP"),
 		
-		PollItemState,
-		HolePosHasKid("F->RC"),
-		SwapSiftDown("HPHK"),	
+		HeapReady,
 		
-		ReadyComplete;
+		IsHeapEmpty("T->SC"),
+		AddHeapTop2Result,
+
+		NeedAnotherSwapDown("F->IHE"),
+		HaveLeftKid("F->SDR"),
+		HaveRghtKid("F->SDL"),
+		LeftLowerRght("T->SDL,F->SDR"),
+		
+		SwapDownLeft,
+		MoveCursorDownLeft("NASD"),
+		
+		SwapDownRght,
+		MoveCursorDownRght("NASD"),
+		
+		//HolePosHasKid("F->RC"),
+		//SwapSiftDown("HPHK"),	
+		
+		SortComplete;
+		
 		public final String tCode;
 		
 		HeapSortMachineState() 			{  tCode  = ""; }	
@@ -31,146 +50,167 @@ public class HeapSortFlow
 	
 	public  static class HeapSortMachine<T extends Comparable<T>> extends FiniteStateMachineImpl
 	{
-		private ArrayList<T> _theList = new ArrayList<T>();
+		private ArrayList<T> _heapList = new ArrayList<T>();
 		
-		// This is the index of the state we are looking at. 
-		// The study operation could be the result of either a poll() or an add()
-		private int _studyPosition = -1;
+		// This is both the original input list and the storage place for the result.
+		private final List<T> _origList;
+		
+		// Keep track of where in the list we are adding to
+		private int _curAddIndex;
+		
+		// This is the index in the heap that we are "studying" 
+		private int _cursorPosition = -1;
 		
 		public HeapSortMachine()
 		{
-			super(HeapSortMachineState.ReadyComplete);
+			this(Collections.emptyList());
 		}	
 		
-		public void add(T newitem)
+		public HeapSortMachine(List<T> olist)
 		{
-			requireState(HeapSortMachineState.ReadyComplete);
+			super(HeapSortMachineState.InitMachine);
 			
-			_studyPosition = _theList.size();
+			Util.massert(olist instanceof RandomAccess,
+				"The list provided to this machine must be random access, found %s", olist.getClass().getName());
 			
-			_theList.add(newitem);
+			_origList = olist;
 			
-			setState(HeapSortMachineState.AddItemState);
-			
-			run2State(HeapSortMachineState.ReadyComplete);
-		}
+			_curAddIndex = 0;
+		}	
 		
 		public void initMachine() {}
 		
-		// Dummy state, set here after we add an item
-		public void addItemState() {}
-		
-		// Dummy state, set after we poll an item
-		public void pollItemState() {}
-		
-		// Binary array math to give the parent position from the kid position
-		private static int getParentPosition(int n)
+		public void addNewItem()
 		{
-			return (n-1)/2;
+			T newitem = _origList.get(_curAddIndex++);
+						
+			_cursorPosition = _heapList.size();
+			
+			_heapList.add(newitem);
 		}
 		
-		// Binary Array math: get the kid positions from the parent position
-		public static int[] getKidPosition(int n)
+		public boolean haveAnotherNewItem()
+		{	
+			return _curAddIndex < _origList.size();			
+		}
+		
+		public void heapReady()
 		{
-			return new int[] { 2*n+1, 2*n+2 };
-		}		
+			_origList.clear();
+		}
+		
+		// Binary array math to give the parent position from the kid position
+		private  int getParentPosition()
+		{
+			return (_cursorPosition-1)/2;
+		}
+		
+		public int getLeftKidPos()
+		{
+			return 2*_cursorPosition+1;	
+		}
+		
+		public  int getRghtKidPos()
+		{
+			return 2*_cursorPosition+2;	
+		}
 		
 		public void showInfo()
 		{
-			Util.pf("%s\n", _theList);	
+			Util.pf("%s\n", _heapList);	
 		}
 		
-		public boolean kidOutOfOrder()
+		public boolean kidLowerParent()
 		{
-			T kid = _theList.get(_studyPosition);
-			T par = _theList.get(getParentPosition(_studyPosition));
+			T kid = _heapList.get(_cursorPosition);
+			T par = _heapList.get(getParentPosition());
 			
 			// true of the current kid is out of order compared to parent	
 			return kid.compareTo(par) < 0;
 		}
-		
+				
 		public void swapKidParent()
 		{
-			swapPosition(getParentPosition(_studyPosition));
+			swapPosition(getParentPosition());
 		}
 		
 		private void swapPosition(int otherpos)
 		{
-			T a = _theList.get(_studyPosition);
-			T b = _theList.get(otherpos);
+			T a = _heapList.get(_cursorPosition);
+			T b = _heapList.get(otherpos);
 			
-			_theList.set(_studyPosition, b);
-			_theList.set(otherpos, a);			
+			_heapList.set(_cursorPosition, b);
+			_heapList.set(otherpos, a);			
 		}
 		
-		public void bounce2Parent()
+		public void moveCursorUp()
 		{
-			_studyPosition = getParentPosition(_studyPosition);
+			_cursorPosition = getParentPosition();
 		}
 		
-		public boolean isEmpty()
+		public boolean isHeapEmpty()
 		{
-			return _theList.isEmpty() || _theList.get(0) == null;	
+			return _heapList.isEmpty() || _heapList.get(0) == null;	
 		}
 		
-		public T poll()
+		public void addHeapTop2Result()
 		{
-			T presult = _theList.get(0);
+			// Add the top of the heap to the result.
+			_origList.add(_heapList.get(0));
 			
-			_theList.set(0, null);
-			_studyPosition = 0;
-			
-			setState(HeapSortMachineState.PollItemState);
-			run2Completion();
-			
-			return presult;
+			// Prepare for sift-down operations
+			_heapList.set(0, null);
+			_cursorPosition = 0;
 		}
 		
-		// Does the hole position have kids?
-		public boolean holePosHasKid()
+		public boolean needAnotherSwapDown()
 		{
-			int[] kidposition = getKidPosition(_studyPosition);	
+			// Util.pf("Have LKid=%b, Rkid=%b\n", haveLeftKid(), haveRghtKid());
 			
-			T leftkid = getOrNull(kidposition[0]);
-			T rghtkid = getOrNull(kidposition[1]);			
-			
-			return leftkid != null || rghtkid != null;
+			return haveLeftKid() || haveRghtKid();
 		}
 		
-		public void swapSiftDown()
+		public boolean haveLeftKid()
 		{
-			int[] kidposition = getKidPosition(_studyPosition);	
+			return getOrNull(getLeftKidPos()) != null;
+		}
+		
+		public boolean haveRghtKid()
+		{
+			return getOrNull(getRghtKidPos()) != null;
+		}
+		
+		public void swapDownLeft()
+		{
+			swapPosition(getLeftKidPos());
+		}
+		
+		public void swapDownRght()
+		{
+			swapPosition(getRghtKidPos());
+		}
+		
+		public void moveCursorDownRght()
+		{
+			_cursorPosition = getRghtKidPos();	
+		}
+		
+		public void moveCursorDownLeft()
+		{
+			_cursorPosition = getLeftKidPos();	
+		}		
+		
+		public boolean leftLowerRght()
+		{
+			T leftkid = _heapList.get(getLeftKidPos());
+			T rghtkid = _heapList.get(getRghtKidPos());
 			
-			T leftkid = getOrNull(kidposition[0]);
-			T rghtkid = getOrNull(kidposition[1]);
-			
-			Util.massert(leftkid != null || rghtkid != null,
-				"We should never enter this state with both kids null");
-			
-			boolean swapleft = leftkid == null ? false :
-						(rghtkid == null ? true : leftkid.compareTo(rghtkid) < 0);
-
-			int swaptarget = kidposition[swapleft ? 0 : 1];
-			
-			swapPosition(swaptarget);
-			
-			// Now we bounce down to study the swap target
-			_studyPosition = swaptarget;
+			return leftkid.compareTo(rghtkid) < 0;
 		}
 		
 		private T getOrNull(int idx)
 		{
-			return idx < _theList.size() ? _theList.get(idx) : null;
-		}
-		
-		public List<T> getResult()
-		{
-			List<T> reslist = Util.arraylist();
-			
-			while(!isEmpty())
-				{ reslist.add(poll()); }
-			
-			return reslist;
+			return idx < _heapList.size() ? _heapList.get(idx) : null;
 		}
 	}
 	
