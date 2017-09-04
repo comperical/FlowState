@@ -1134,4 +1134,58 @@ public class Util
         		return ply(func).get();	
         	}
         }
+        
+        
+	public static class TreePrinter
+	{
+		private TreeMap<Pair<Integer, Integer>, String> _theMap = Util.treemap();
+		
+		public void addInfo(int row, int horzpos, String theinfo)
+		{
+			_theMap.put(Pair.build(row, horzpos), theinfo);
+		}
+		
+		
+		public void print()
+		{
+			print(100);
+		}
+		
+		public void print(int width)
+		{
+			int pcount = 0;
+			
+			int midpt = width/2;
+		
+			for(int row : Util.range(100))
+			{
+				List<Pair<Integer, String>> pairlist = _theMap.entrySet()
+										.stream()
+										.filter(me -> me.getKey()._1 == row)
+										.map(me -> Pair.build(me.getKey()._2, me.getValue()))
+										.collect(CollUtil.toList());
+								
+				int lastpos = 0;						
+										
+				for(Pair<Integer, String> onepair : pairlist)
+				{
+					int targpos = midpt + onepair._1;
+					
+					for(int i : Util.range(targpos-lastpos))
+						{ Util.pf(" "); }
+					
+					Util.pf("%s", onepair._2);
+					
+					lastpos = targpos + onepair._2.length();
+					
+					pcount++;
+				}
+				
+				Util.pf("\n");
+										
+				if(pcount == _theMap.size())
+					{ break; }	
+			}
+		}		
+	}        
 } 

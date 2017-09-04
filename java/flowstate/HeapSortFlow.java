@@ -14,6 +14,7 @@ public class HeapSortFlow
 		HaveAnotherNewItem("F->HR"),
 		
 		AddNewItem,
+		MoveCursor2NewLeaf,
 		CursorBelowParent("F->HANI"),
 		SwapCursorWithParent,
 		MoveCursorUp("CBP"),
@@ -69,7 +70,8 @@ public class HeapSortFlow
 			super(HeapSortMachineState.InitMachine);
 			
 			Util.massert(olist instanceof RandomAccess,
-				"The list provided to this machine must be random access, found %s", olist.getClass().getName());
+				"The list provided to this machine must be random access, found %s", 
+				olist.getClass().getName());
 			
 			_origList = olist;
 			
@@ -80,11 +82,12 @@ public class HeapSortFlow
 		
 		public void addNewItem()
 		{
-			T newitem = _origList.get(_curAddIndex++);
-						
-			_cursorPosition = _heapList.size();
-			
-			_heapList.add(newitem);
+			_heapList.add(_origList.get(_curAddIndex++));
+		}
+		
+		public void moveCursor2NewLeaf()
+		{
+			_cursorPosition = _heapList.size()-1;
 		}
 		
 		public boolean haveAnotherNewItem()

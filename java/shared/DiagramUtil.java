@@ -138,6 +138,11 @@ public class DiagramUtil
 		Util.pf("Generated PNG file and moved to %s\n", webapploc.getAbsolutePath());		
 	}
 	
+	public static File createDiagram(File inputfile)
+	{
+		return createDiagram(inputfile, "dot");	
+	}
+	
 	public static File createDiagram(File inputfile, String dotcommand)
 	{
 		Util.massert(inputfile.exists(), "Missing input file %s", inputfile);
@@ -145,13 +150,15 @@ public class DiagramUtil
 		Util.massert(inputfile.getAbsolutePath().endsWith(".gv"), 
 			"Expected input file ending with .gv, found %s", inputfile);
 		
-		String commline = Util.sprintf("%s -Tpng -O %s", dotcommand, inputfile.getAbsolutePath());
+		String pngpath = StringUtil.peelSuffix(inputfile.getAbsolutePath(), "gv") + "png";
+		
+		String commline = Util.sprintf("%s -Tpng -o %s %s", dotcommand, pngpath, inputfile.getAbsolutePath());
 		
 		Util.pf("%s\n", commline);
 		
 		(new SyscallWrapper(commline)).execE();
 		
-		File pngoutput = new File(inputfile.getAbsolutePath() + ".png");
+		File pngoutput = new File(pngpath);
 		
 		Util.massert(pngoutput.exists(),
 			"Output file %s doesn't exist, perhaps GraphViz command failed", pngoutput);

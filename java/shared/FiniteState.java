@@ -470,6 +470,11 @@ public class FiniteState
 			return Util.listify("No diagnostic info available, override getDiagnosticInfo()");	
 		}
 		
+		default void commLineResult(String argline)
+		{
+			Util.massert(false, "Must override commLineResult(..) method for this to work");	
+		}
+		
 		// }}}
 	}
 	
@@ -640,9 +645,15 @@ public class FiniteState
 					Util.pf("\t%s\n", onerec);
 				}
 				
-				Util.pf("Command [(S)tep, # for stepcount, (Q)uit] : ");
+				Util.pf("Command [(S)tep, # for stepcount, (Q)uit, +(...)] : ");
 				
 				String resp = sc.nextLine().trim().toLowerCase();
+				
+				if(resp.startsWith("+"))
+				{
+					theMachine.commLineResult(resp.substring(1));	
+					continue;
+				}
 				
 				if(resp.equals("s"))
 				{

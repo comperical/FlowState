@@ -20,6 +20,8 @@ import net.danburfoot.flowstate.HeapSortFlow.*;
 import net.danburfoot.flowstate.MergeSortFlow.*;
 import net.danburfoot.flowstate.SudokuSystem.*;
 import net.danburfoot.flowstate.LargeSumFlow.*;
+import net.danburfoot.flowstate.UkkonenSimple.*;
+import net.danburfoot.flowstate.RedBlackSystem.*;
 
 
 // CLI interface to all the Diagram tools.
@@ -106,6 +108,9 @@ public class EntryPoint
 		
 		private FiniteStateMachineImpl getMachine()
 		{
+			return new RedBlackMachine<Integer>();
+			
+			/*
 			String s = _argMap.getStr("machine");
 			
 			switch(s)
@@ -115,6 +120,7 @@ public class EntryPoint
 				
 				default: throw new RuntimeException("Unknown machine name: " + s);
 			}
+			*/
 		}
 	}	
 	
@@ -148,7 +154,10 @@ public class EntryPoint
 				// new SudokuSearchMachine()
 				//new LargeSumMachine()
 				// new MergeSortMachine()
-				new HeapSortMachine()
+				// new HeapSortMachine()
+				// new StrieUpdateMachine()
+				new RbDeleteMachine(),
+				new RedBlackMachine()
 			);
 		}
 	}
