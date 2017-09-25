@@ -150,7 +150,8 @@ public class DiagramUtil
 		Util.massert(inputfile.getAbsolutePath().endsWith(".gv"), 
 			"Expected input file ending with .gv, found %s", inputfile);
 		
-		String pngpath = StringUtil.peelSuffix(inputfile.getAbsolutePath(), "gv") + "png";
+		String pngpath = inputfile.getAbsolutePath();
+		pngpath = pngpath.substring(0, pngpath.length()-"gv".length())+"png";
 		
 		String commline = Util.sprintf("%s -Tpng -o %s %s", dotcommand, pngpath, inputfile.getAbsolutePath());
 		

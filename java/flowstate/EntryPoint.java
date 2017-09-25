@@ -22,6 +22,7 @@ import net.danburfoot.flowstate.SudokuSystem.*;
 import net.danburfoot.flowstate.LargeSumFlow.*;
 import net.danburfoot.flowstate.UkkonenSimple.*;
 import net.danburfoot.flowstate.RedBlackSystem.*;
+import net.danburfoot.flowstate.AvlTreeSystem.*;
 
 
 // CLI interface to all the Diagram tools.
@@ -156,8 +157,9 @@ public class EntryPoint
 				// new MergeSortMachine()
 				// new HeapSortMachine()
 				// new StrieUpdateMachine()
-				new RbDeleteMachine(),
-				new RedBlackMachine()
+				//new RbDeleteMachine(),
+				// new RedBlackMachine()
+				new AvlTreeOpMachine()
 			);
 		}
 	}

@@ -7,8 +7,6 @@ import net.danburfoot.shared.Util;
 import net.danburfoot.shared.Util.*;
 import net.danburfoot.shared.FiniteState.*;
 
-// This is a solution to Problem 14, "Longest Collatz sequence", of Project Euler
-// https://projecteuler.net/problem=14
 public class UkkonenSimple
 {
 	public enum StrieUpdateEnum implements StringCodeStateEnum

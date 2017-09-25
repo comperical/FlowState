@@ -1142,7 +1142,11 @@ public class Util
 		
 		public void addInfo(int row, int horzpos, String theinfo)
 		{
-			_theMap.put(Pair.build(row, horzpos), theinfo);
+			Pair<Integer, Integer> poskey = Pair.build(row, horzpos);
+			
+			// Util.massert(!_theMap.containsKey(poskey), "Already have position %s in map", poskey);
+			
+			_theMap.put(poskey, theinfo);
 		}
 		
 		
