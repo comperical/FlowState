@@ -148,10 +148,35 @@ public class AvlTreeSystem
 		{
 			int s = getSlope();
 			
-			Util.massert(-1 <= s && s <= 1, "Slope is out of range: s=%d", s);
+			Util.massert(-1 <= s && s <= 1, "Slope is out of range: s=%d for node with value %d", s, theVal);
 			
 			left.checkInvariant();
 			rght.checkInvariant();
+		}
+		
+		public void print()
+		{
+			BinaryTreePrinter<Integer> btp = new BinaryTreePrinter<Integer>();
+			btp.reportDataList(getList());
+			printSub(btp, null, 0);
+			
+			btp.print2Screen();
+		}
+		
+		private void printSub(BinaryTreePrinter<Integer> btp, Integer parval, int depth)
+		{
+			btp.reportDepth(theVal, depth);
+			btp.reportLink(parval, theVal);
+			
+			if(!left.isLeaf())
+			{
+				((AvlNode) left).printSub(btp, theVal, depth+1);
+			}
+			
+			if(!rght.isLeaf())
+			{
+				((AvlNode) rght).printSub(btp, theVal, depth+1);
+			}
 		}
 	}
 	
@@ -168,7 +193,8 @@ public class AvlTreeSystem
 		DeleteStart,
 		DIsTargetLeaf("T->OC"),
 		FoundDeleteTarget("F->DTBV"),
-		ComposeDeleteResult("OC"),
+		ComposeDeleteResult,
+		IsDeleteResultLeaf("T->OC,F->BS"),
 		
 		DTargetBelowValue("F->RDR"),
 		RecDeleteLeft("BS"),
@@ -229,6 +255,11 @@ public class AvlTreeSystem
 		
 		public boolean iIsTargetLeaf()
 		{
+			return _resultTree.isLeaf();
+		}
+		
+		public boolean isDeleteResultLeaf()
+		{	
 			return _resultTree.isLeaf();
 		}
 			
@@ -426,7 +457,17 @@ public class AvlTreeSystem
 			Boolean result = (doadd ? !_theTree.contains(nextval) : _theTree.contains(nextval));
 			
 			_theTree = (doadd ? insert(_theTree, nextval) : delete(_theTree, nextval));
-						
+			
+			/*
+			Util.pf("-------------\n");
+			Util.pf("Operation is %s for value=%d\n", (doadd ? "ADD" : "DEL"), nextval);
+			
+			if(_theTree instanceof AvlNode)
+			{
+				((AvlNode) _theTree).print();
+			}
+			*/
+			
 			_theTree.checkInvariant();
 			
 			if(_referenceSet != null)
