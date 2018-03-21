@@ -23,6 +23,7 @@ import net.danburfoot.flowstate.LargeSumFlow.*;
 import net.danburfoot.flowstate.UkkonenSimple.*;
 import net.danburfoot.flowstate.RedBlackSystem.*;
 import net.danburfoot.flowstate.AvlTreeSystem.*;
+import net.danburfoot.flowstate.WordCountSystem.*;
 
 
 // CLI interface to all the Diagram tools.
@@ -159,7 +160,8 @@ public class EntryPoint
 				// new StrieUpdateMachine()
 				//new RbDeleteMachine(),
 				// new RedBlackMachine()
-				new AvlTreeOpMachine()
+				new WordCountMachine()
+				// new AvlTreeOpMachine()
 			);
 		}
 	}
@@ -241,7 +243,15 @@ public class EntryPoint
 		}
 	}	
 	
-	
+	public static class RunWordCount extends ArgMapRunnable
+	{
+		
+		public void runOp()
+		{
+			WordCountMachine wcsys = new WordCountMachine();
+			wcsys.run2Completion();
+		}
+	}
 	
 	public static void main(String[] args) throws Exception
 	{

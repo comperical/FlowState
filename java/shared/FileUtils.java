@@ -617,6 +617,18 @@ public class FileUtils
         		try { return Util.linkedlistify(readLineList()); }
         		catch (IOException ioex) { throw new RuntimeException(ioex); }
         	}
+        	
+        	public String readSingleString() throws IOException
+        	{	
+        		List<String> list = readLineList();
+        		return Util.join(list, "\n");
+        	}
+        	
+        	public String readSingleStringE()
+        	{	
+        		try { return readSingleString(); }
+        		catch (IOException ioex) { throw new RuntimeException(ioex); }
+        	}        	
         }
         
         

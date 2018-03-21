@@ -2,6 +2,7 @@
 *.class
 
 *.pyc
+*.pyo
 
 # Log file
 *.log

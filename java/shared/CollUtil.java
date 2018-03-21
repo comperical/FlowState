@@ -270,5 +270,10 @@ public class CollUtil
 		{
 			return _directOrder.size();	
 		}
+		
+		public Set<T> getItemSet()
+		{
+			return Collections.unmodifiableSet(_indexMap.keySet());	
+		}
 	}
 } 

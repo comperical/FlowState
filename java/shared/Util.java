@@ -620,6 +620,15 @@ public class Util
 	}	
 	
 	
+	public static String getUserInput()
+	{
+		Scanner sc = new Scanner(System.in);
+		String input = sc.nextLine();
+		sc.close();
+		
+		return input;
+	}
+	
 
 	
 	public static String shrink(String s, int maxlen)
@@ -649,6 +658,12 @@ public class Util
 		phaseset.add(newphase);
 	}	
 	
+	public static <A> List<A> spanSlice(List<A> biglist, int S, int W)
+	{
+		return slice(biglist, Pair.build(S, S+W));
+	}
+	
+	
 	public static <A> List<A> slice(List<A> biglist, Pair<Integer, Integer> minmax)
 	{
 		List<A> sublist = Util.vector();
@@ -671,6 +686,10 @@ public class Util
 			
 	}
 	
+	public static <A> Pair<A, A> swapIfTrue(A left, A rght, boolean condition)
+	{
+		return condition ? Pair.build(rght, left) : Pair.build(left, rght);
+	}
 
 	
 	public static <A> int countPred(Collection<A> mycol, Predicate<A> mypred)
@@ -747,6 +766,33 @@ public class Util
 		
 		return mymap;
 	}	
+	
+	public static <A, B extends Comparable<B>> B min(Collection<A> mycol, Function<A, B> func)
+	{
+		return minzip(mycol, func)._2;
+	}
+	
+	public static <A, B extends Comparable<B>> Pair<A, B> minzip(Collection<A> mycol, Function<A, B> func)
+	{
+		Util.massert(!mycol.isEmpty(), "Attempt to take min of empty list");
+				
+		A curitm = mycol.iterator().next();
+		B curmin = func.apply(curitm);
+		
+		for(A oneitem : mycol)
+		{
+			B nextval = func.apply(oneitem);
+			
+			if(nextval.compareTo(curmin) < 0)
+			{ 
+				curmin = nextval; 
+				curitm = oneitem;	
+			}
+		}
+		
+		return Pair.build(curitm, curmin);
+	}	
+	
 	
 	public static <A, B> List<B>  map2list(A[] mycol, Function<A, B> func)
 	{

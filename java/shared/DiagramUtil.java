@@ -18,7 +18,7 @@ public class DiagramUtil
 		
 		private boolean _keepGvOutput;
 		
-		private FsDiagramCreator() {}
+		public FsDiagramCreator() {}
 		
 		public static FsDiagramCreator build()
 		{

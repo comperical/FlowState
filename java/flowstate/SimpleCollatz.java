@@ -128,21 +128,19 @@ public class SimpleCollatz
 			return getNextProbeVal() > _targetValue;	
 		}
 
-		public long getMaxCollatz()
+		public Map.Entry<Long, Long> getMaxCollatz()
 		{
-			long maxlen = -1;
-			long maxkey = -1;
+			Map.Entry<Long, Long> bestpair = null;
 			
 			for(Map.Entry<Long, Long> lenpair : _cacheMap.entrySet())
 			{
-				if(lenpair.getValue() > maxlen)
+				if(bestpair == null || lenpair.getValue() > bestpair.getValue())
 				{
-					maxkey = lenpair.getKey();
-					maxlen = lenpair.getValue();
+					bestpair = lenpair;
 				}
 			}
 			
-			return maxkey;
+			return bestpair;
 		}
 		
 		@Override
@@ -197,11 +195,11 @@ public class SimpleCollatz
 			
 			csmach.run2Completion();
 			
-			long maxcoll = csmach.getMaxCollatz();
+			Map.Entry<Long, Long> maxcoll = csmach.getMaxCollatz();
 			
-			Util.pf("Result is %d\n", maxcoll);
+			Util.pf("Result is %d, length %d\n", maxcoll.getKey(), maxcoll.getValue());
 			
-			Util.pf("%s\n", SimpleCollatz.getSequenceString(maxcoll));
+			Util.pf("%s\n", SimpleCollatz.getSequenceString(maxcoll.getKey()));
 			
 		}
 	}
