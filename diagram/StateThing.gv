@@ -1,0 +1,34 @@
+digraph MyGraphName {
+node [shape=box] AddHeapTop2Result; SwapDownRght; MoveCursorDownLeft; MoveCursorUp; MoveCursor2NewLeaf; SetCursorToZero; HeapReady; InitMachine; SwapDownLeft; AddNewItem; SwapCursorWithParent; MoveCursorDownRght
+node [shape=diamond] SortComplete
+node [shape=ellipse] CursorPosHasKid; CursorBelowParent; LeftBelowRght; HaveAnotherNewItem; IsHeapEmpty; HaveLeftKid; HaveRghtKid
+SwapDownLeft->MoveCursorDownLeft ;
+MoveCursor2NewLeaf->CursorBelowParent ;
+SwapDownRght->MoveCursorDownRght ;
+InitMachine->HaveAnotherNewItem ;
+IsHeapEmpty->SortComplete [label=T];
+HaveAnotherNewItem->HeapReady [label=F];
+CursorBelowParent->HaveAnotherNewItem [label=F];
+HaveAnotherNewItem->AddNewItem [label=T];
+CursorPosHasKid->IsHeapEmpty [label=F];
+MoveCursorUp->CursorBelowParent ;
+HaveRghtKid->SwapDownLeft [label=F];
+MoveCursorDownRght->CursorPosHasKid ;
+CursorBelowParent->SwapCursorWithParent [label=T];
+CursorPosHasKid->HaveLeftKid [label=T];
+LeftBelowRght->SwapDownRght [label=F];
+IsHeapEmpty->AddHeapTop2Result [label=F];
+LeftBelowRght->SwapDownLeft [label=T];
+MoveCursorDownLeft->CursorPosHasKid ;
+HeapReady->IsHeapEmpty ;
+HaveRghtKid->LeftBelowRght [label=T];
+SetCursorToZero->CursorPosHasKid ;
+HaveLeftKid->HaveRghtKid [label=T];
+AddHeapTop2Result->SetCursorToZero ;
+SwapCursorWithParent->MoveCursorUp ;
+HaveLeftKid->SwapDownRght [label=F];
+AddNewItem->MoveCursor2NewLeaf ;
+overlap=false
+label=CollSeqMachine
+fontsize=12
+}
