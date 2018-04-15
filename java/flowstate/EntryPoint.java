@@ -24,6 +24,7 @@ import net.danburfoot.flowstate.UkkonenSimple.*;
 import net.danburfoot.flowstate.RedBlackSystem.*;
 import net.danburfoot.flowstate.AvlTreeSystem.*;
 import net.danburfoot.flowstate.WordCountSystem.*;
+import net.danburfoot.flowstate.MonsterDance.*;
 
 
 // CLI interface to all the Diagram tools.
@@ -160,7 +161,8 @@ public class EntryPoint
 				// new StrieUpdateMachine()
 				//new RbDeleteMachine(),
 				// new RedBlackMachine()
-				new WordCountMachine()
+				// new WordCountMachine()
+				new MDanceMachine()
 				// new AvlTreeOpMachine()
 			);
 		}
