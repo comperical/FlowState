@@ -81,7 +81,22 @@ So if you do not include the proper number of transition codes for a state,
 You can often do a lot of debugging at inspection time, 
 	using either the error messages, or by visually inspecting the shape of the diagram.
 	
+There is also a third type of state: completion states.
+These states are designated by a naming convention: the Enum names end with "-Complete" or "-End".
+These states should NOT have corresponding methods;
+	if you need to do some cleanup before the computation finishes, 
+	use an Op state immediately before the Completion state.
+When a machine enters a Completion state, it is considered to be finished - 
+	this could be either a successful result, or an error.
+If you attempt to run the machine further after it is in a Completion state,
+	it will produce an error.
 
+You can have multiple Completion states,
+	which might correspond to different types of success or failure of the computation.
+If a Completion state is not the final entry of the Enum list, 
+	it must return the transition code "0".
+	
+	
 ## Running the Machine
 
 Once the FS machine and its state Enums are properly configured, 

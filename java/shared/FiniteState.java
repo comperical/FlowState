@@ -572,8 +572,6 @@ public class FiniteState
 						
 			for(Enum onestate : _stateTransMap.keySet())
 			{
-				// FiniteStateEnum fstate = (FiniteStateEnum) 
-				
 				Method statemeth = getMethodFromName(onestate.toString());
 				
 				int trancount = _stateTransMap.get(onestate).size();
