@@ -72,3 +72,11 @@ First, we need to say that `PollMstEdge` leads back to `HaveAnotherMstEdge`,
 Second, we need to specify that the false branch from `HaveAnotherMstEdge`
 	leads to `CalcComplete`, with the acronym `CC`.
 
+The diagram analysis system uses reflection to determine if an Enum designates a Query or Op state, 
+	by inspecting the return type (a void method is an Op state, a boolean return is a Query state).
+So if you do not include the proper number of transition codes for a state,
+	including the default, you will get an error at "inspection time" - 
+	which is either when the machine starts up, or when you attempt to create a diagram.
+You can often do a lot of debugging at inspection time, 
+	using either the error messages, or by visually inspecting the shape of the diagram.
+	
