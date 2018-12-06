@@ -66,5 +66,9 @@ Which corresponds to this diagram:
 
 ![MinTreeCalc](/diagram/MinTreeCalcMachine.png)
 
-
+We need to override the defaults in only two cases. 
+First, we need to say that `PollMstEdge` leads back to `HaveAnotherMstEdge`, 
+	which is specified using the acronym `HAME`.
+Second, we need to specify that the false branch from `HaveAnotherMstEdge`
+	leads to `CalcComplete`, with the acronym `CC`.
 
