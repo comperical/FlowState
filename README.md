@@ -32,6 +32,7 @@ Operation methods must return `void`, and can change the machine data.
 1. The machine superclass constructor for `FiniteStateMachineImpl` takes an Enum argument
 	corresponding to the initial state of the machine.
 	
+## State Transition DSL
 	
 The state machine transitions are specified with a somewhat terse DSL that applies to the state Enums.
 The rules of the DSL are as follows. 
@@ -79,4 +80,35 @@ So if you do not include the proper number of transition codes for a state,
 	which is either when the machine starts up, or when you attempt to create a diagram.
 You can often do a lot of debugging at inspection time, 
 	using either the error messages, or by visually inspecting the shape of the diagram.
+	
+
+## Running the Machine
+
+Once the FS machine and its state Enums are properly configured, 
+	it can be controlled using the following set of methods:
+	
+1. ``run2Completion`` - run the machine until it encounters a Completion state.
+1. ``run2State(...)`` - run the machine until it arrives at the given state.
+1. ``runPastState(...)`` - run the machine until it arrives at the given state, and also execute that state.
+1. ``runOneStep`` - run a single step of the machine.
+1. ``run2StepCount(..)`` - run to the given step count of the machine, starting from the initial state. 
+1. ``getState()`` - returns the current state Enum of the machine.
+	
+Typically, in normal mode, we will simply call ``run2Completion`` to perform the calculation implemented by the machine,
+	and then potentially call other methods of the object to get the data.
+For example, you might add a ``getResult`` method to your machine that returns a data structure that was built 
+	by the machine in the process of running it.
+This method might also add an assertion that requires the machine to be in the correct Completion state 
+	before returning the result.
+	
+The other control methods can be very useful for debugging. 
+For example, if you know your machine has a bug at step #23, 
+	you can run to step #22 and then inspect the contents of the machine. 
+If the machine has additional methods that are intended to be used by an outside caller,
+	you can require that the machine is in the proper state for calling the method,
+	by using an assertion in conjunction with the ``getState`` query,
+	in the first lines of the external method.
+
+
+	
 	
