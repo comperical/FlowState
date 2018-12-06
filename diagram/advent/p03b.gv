@@ -1,0 +1,13 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; ProcessClaim; FinalCount
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherClaim
+HaveAnotherClaim->FinalCount [label=F];
+InitMachine->HaveAnotherClaim ;
+HaveAnotherClaim->ProcessClaim [label=T];
+ProcessClaim->HaveAnotherClaim ;
+FinalCount->SuccessComplete ;
+overlap=false
+label=Machine_p03b
+fontsize=12
+}

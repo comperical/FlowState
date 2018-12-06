@@ -25,6 +25,7 @@ import net.danburfoot.flowstate.RedBlackSystem.*;
 import net.danburfoot.flowstate.AvlTreeSystem.*;
 import net.danburfoot.flowstate.WordCountSystem.*;
 import net.danburfoot.flowstate.MonsterDance.*;
+import net.danburfoot.flowstate.PaperCutter.*;
 
 
 // CLI interface to all the Diagram tools.
@@ -162,7 +163,8 @@ public class EntryPoint
 				//new RbDeleteMachine(),
 				// new RedBlackMachine()
 				// new WordCountMachine()
-				new MDanceMachine()
+				// new MDanceMachine()
+				new PaperCutMachine()
 				// new AvlTreeOpMachine()
 			);
 		}

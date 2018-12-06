@@ -6,7 +6,7 @@ import os, re, copy
 
 from diagram_util import GraphVizTool
 
-STATE_FUNCTION_RE = 's(\d{1,3})_(.*)'
+STATE_FUNCTION_RE = r's(\d{1,3})_(.*)'
 
 def get_basic_name(functionref):
 	return re.match(STATE_FUNCTION_RE, functionref.__name__).group(2)
@@ -65,6 +65,8 @@ class FiniteStateMachine:
 		self.exact_visit_map = {}
 		self.max_visit_map = {}
 			
+		self.step_count = 0
+
 		self.__init_state_info()
 				
 		self.build_transition_map(smap)
@@ -210,7 +212,7 @@ class FiniteStateMachine:
 		
 	def run_one_state(self):
 		
-		#curbasic = get_basic_name(self.cur_state_func)
+		curbasic = get_basic_name(self.cur_state_func)
 		statetype = self.get_state_type(self.cur_state_func)
 		
 		# Log the state visit
@@ -236,6 +238,13 @@ class FiniteStateMachine:
 		
 		self.cur_state_func = nextstate
 
+		self.step_count += 1
+
+
+	def run2_step_count(self, stepnum):
+		while self.step_count != stepnum:			
+			self.run_one_state()
+
 	
 	def run2_completion(self):
 		while self.get_state_type(self.cur_state_func) != "end":
@@ -246,10 +255,10 @@ class FiniteStateMachine:
 				"Visited state {} {} times, but expected {}".format(get_basic_name(sfunc), self.state_visit_count[sfunc], expvisit))
 			
 			
-	def get_gv_tool(self):
+	def get_gv_tool(self, graphlabel="FsMachine"):
 		
 		gvtool = GraphVizTool()
-		gvtool.set_property("graphlabel", "CollSeqMachine")
+		gvtool.set_property("graphlabel", graphlabel)
 		
 		type2shape = { "op" : "box", "query" : "ellipse", "end" : "diamond" }
 		

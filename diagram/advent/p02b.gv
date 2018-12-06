@@ -1,0 +1,20 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; PrepIdxList; PrepJdxList; PollJdx; PollIdx; MarkSuccess
+node [shape=diamond] SuccessComplete; FailureComplete
+node [shape=ellipse] HaveAnotherIdx; HaveAnotherJdx; TestIdxJdx
+MarkSuccess->SuccessComplete ;
+HaveAnotherIdx->PrepJdxList [label=T];
+HaveAnotherJdx->TestIdxJdx [label=T];
+HaveAnotherJdx->PollIdx [label=F];
+PollIdx->HaveAnotherIdx ;
+InitMachine->PrepIdxList ;
+TestIdxJdx->PollJdx [label=F];
+HaveAnotherIdx->FailureComplete [label=F];
+PollJdx->HaveAnotherJdx ;
+TestIdxJdx->MarkSuccess [label=T];
+PrepIdxList->HaveAnotherIdx ;
+PrepJdxList->HaveAnotherJdx ;
+overlap=false
+label=Machine_p02b
+fontsize=12
+}

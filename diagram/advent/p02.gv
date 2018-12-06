@@ -1,0 +1,19 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; ReadInput; PrepareNextCounts; LogTriple; LogDouble
+node [shape=diamond] ProblemComplete
+node [shape=ellipse] HaveAnotherItem; NextHasTriple; NextHasDouble
+LogDouble->HaveAnotherItem ;
+PrepareNextCounts->NextHasTriple ;
+InitMachine->ReadInput ;
+NextHasDouble->HaveAnotherItem [label=F];
+HaveAnotherItem->PrepareNextCounts [label=T];
+NextHasTriple->NextHasDouble [label=F];
+NextHasDouble->LogDouble [label=T];
+HaveAnotherItem->ProblemComplete [label=F];
+ReadInput->HaveAnotherItem ;
+NextHasTriple->LogTriple [label=T];
+LogTriple->NextHasDouble ;
+overlap=false
+label=Machine_p02
+fontsize=12
+}
