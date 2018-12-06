@@ -61,3 +61,10 @@ public enum MinTreeCalcState implements StringCodeStateEnum
 	public String getTransitionCode()  { return tCode; }		
 }
 ```
+
+Which corresponds to this diagram: 
+
+![MinTreeCalc](/diagram/MinTreeCalcMachine.png)
+
+
+
