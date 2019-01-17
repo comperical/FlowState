@@ -1,0 +1,20 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; SetupForInput; ApplyProbeOp; AddProbeMatch; PollProbeCode; FinishInput
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherInput; HaveAnotherProbe; MatchTargetResult
+InitMachine->HaveAnotherInput ;
+HaveAnotherInput->SetupForInput [label=T];
+HaveAnotherProbe->FinishInput [label=F];
+ApplyProbeOp->MatchTargetResult ;
+FinishInput->HaveAnotherInput ;
+MatchTargetResult->PollProbeCode [label=F];
+PollProbeCode->HaveAnotherProbe ;
+AddProbeMatch->PollProbeCode ;
+SetupForInput->HaveAnotherProbe ;
+HaveAnotherInput->SuccessComplete [label=F];
+HaveAnotherProbe->ApplyProbeOp [label=T];
+MatchTargetResult->AddProbeMatch [label=T];
+overlap=false
+label=Machine_p16a
+fontsize=12
+}

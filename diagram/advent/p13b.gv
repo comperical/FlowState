@@ -1,0 +1,31 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; ReadInput; ShowBoardState; InitCartIds; UpdateCartPos; BasicCartTurn; IntersectionTurn; PollCartId; NextRound; RemoveColliders; ShowFinalBoard
+node [shape=diamond] FailComplete; SuccessComplete
+node [shape=ellipse] HaveAnotherCart; CheckCollision; IsBasicBend; IsIntersection; OnlyOneCart; TooManyRounds
+UpdateCartPos->CheckCollision ;
+RemoveColliders->HaveAnotherCart ;
+PollCartId->HaveAnotherCart ;
+TooManyRounds->ShowBoardState [label=F];
+ShowBoardState->InitCartIds ;
+CheckCollision->RemoveColliders [label=T];
+IsBasicBend->BasicCartTurn [label=T];
+CheckCollision->IsBasicBend [label=F];
+IsIntersection->PollCartId [label=F];
+HaveAnotherCart->UpdateCartPos [label=T];
+HaveAnotherCart->OnlyOneCart [label=F];
+ReadInput->ShowBoardState ;
+OnlyOneCart->ShowFinalBoard [label=T];
+NextRound->TooManyRounds ;
+IsIntersection->IntersectionTurn [label=T];
+InitCartIds->HaveAnotherCart ;
+IntersectionTurn->PollCartId ;
+InitMachine->ReadInput ;
+TooManyRounds->FailComplete [label=T];
+IsBasicBend->IsIntersection [label=F];
+BasicCartTurn->PollCartId ;
+OnlyOneCart->NextRound [label=F];
+ShowFinalBoard->SuccessComplete ;
+overlap=false
+label=Machine_p13b
+fontsize=12
+}

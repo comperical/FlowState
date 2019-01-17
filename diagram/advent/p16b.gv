@@ -1,0 +1,30 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; SetupForInput; ApplyProbeOp; AddProbeMatch; PollProbeCode; FilterBadCodes; FinishInput; AssignRequiredOps; WinnowCandidates; SanityCheckCodemap; StartProgram; RunCommand
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherInput; HaveAnotherProbe; MatchTargetResult; AllAssignmentsOkay; HaveAnotherCommand
+AssignRequiredOps->WinnowCandidates ;
+FilterBadCodes->FinishInput ;
+AllAssignmentsOkay->AssignRequiredOps [label=F];
+SetupForInput->HaveAnotherProbe ;
+AllAssignmentsOkay->SanityCheckCodemap [label=T];
+AddProbeMatch->PollProbeCode ;
+HaveAnotherInput->AllAssignmentsOkay [label=F];
+MatchTargetResult->AddProbeMatch [label=T];
+FinishInput->HaveAnotherInput ;
+StartProgram->HaveAnotherCommand ;
+HaveAnotherInput->SetupForInput [label=T];
+SanityCheckCodemap->StartProgram ;
+WinnowCandidates->AllAssignmentsOkay ;
+PollProbeCode->HaveAnotherProbe ;
+HaveAnotherProbe->FilterBadCodes [label=F];
+HaveAnotherCommand->RunCommand [label=T];
+RunCommand->HaveAnotherCommand ;
+MatchTargetResult->PollProbeCode [label=F];
+ApplyProbeOp->MatchTargetResult ;
+InitMachine->HaveAnotherInput ;
+HaveAnotherCommand->SuccessComplete [label=F];
+HaveAnotherProbe->ApplyProbeOp [label=T];
+overlap=false
+label=Machine_p16b
+fontsize=12
+}

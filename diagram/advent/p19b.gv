@@ -1,0 +1,18 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; CopyIptr2Register; ExecuteInstruction; CopyRegister2Iptr; IncrementInstPtr; SetSmartFastInfo
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] ProgramTerminates; SmartFastCheck
+ExecuteInstruction->CopyRegister2Iptr ;
+SmartFastCheck->CopyIptr2Register [label=F];
+SetSmartFastInfo->SuccessComplete ;
+InitMachine->ProgramTerminates ;
+ProgramTerminates->SuccessComplete [label=T];
+ProgramTerminates->SmartFastCheck [label=F];
+CopyIptr2Register->ExecuteInstruction ;
+SmartFastCheck->SetSmartFastInfo [label=T];
+IncrementInstPtr->ProgramTerminates ;
+CopyRegister2Iptr->IncrementInstPtr ;
+overlap=false
+label=Machine_p19b
+fontsize=12
+}

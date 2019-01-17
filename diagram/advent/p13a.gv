@@ -1,0 +1,28 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; ReadInput; ShowBoardState; InitCartIds; UpdateCartPos; BasicCartTurn; IntersectionTurn; PollCartId; NextRound; ShowCollisionInfo
+node [shape=diamond] FailComplete; SuccessComplete
+node [shape=ellipse] HaveAnotherCart; CheckCollision; IsBasicBend; IsIntersection; TooManyRounds
+HaveAnotherCart->NextRound [label=F];
+ReadInput->ShowBoardState ;
+PollCartId->HaveAnotherCart ;
+HaveAnotherCart->UpdateCartPos [label=T];
+ShowBoardState->InitCartIds ;
+IsIntersection->IntersectionTurn [label=T];
+ShowCollisionInfo->SuccessComplete ;
+IsBasicBend->BasicCartTurn [label=T];
+IntersectionTurn->PollCartId ;
+BasicCartTurn->PollCartId ;
+TooManyRounds->ShowBoardState [label=F];
+TooManyRounds->FailComplete [label=T];
+IsBasicBend->IsIntersection [label=F];
+NextRound->TooManyRounds ;
+CheckCollision->ShowCollisionInfo [label=T];
+InitMachine->ReadInput ;
+IsIntersection->PollCartId [label=F];
+UpdateCartPos->CheckCollision ;
+CheckCollision->IsBasicBend [label=F];
+InitCartIds->HaveAnotherCart ;
+overlap=false
+label=Machine_p13a
+fontsize=12
+}

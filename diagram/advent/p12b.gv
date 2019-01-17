@@ -1,0 +1,20 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; PrintPlantInfo; ResetIndex; IncrementIndex; NextGenCalc; CycleGeneration
+node [shape=diamond] SuccessComplete; FailComplete
+node [shape=ellipse] HaveAnotherIndex; IsFixedPoint; TooManyGenerations
+IncrementIndex->NextGenCalc ;
+PrintPlantInfo->ResetIndex ;
+IsFixedPoint->SuccessComplete [label=T];
+HaveAnotherIndex->IncrementIndex [label=T];
+CycleGeneration->TooManyGenerations ;
+IsFixedPoint->CycleGeneration [label=F];
+TooManyGenerations->PrintPlantInfo [label=F];
+NextGenCalc->HaveAnotherIndex ;
+HaveAnotherIndex->IsFixedPoint [label=F];
+ResetIndex->HaveAnotherIndex ;
+TooManyGenerations->FailComplete [label=T];
+InitMachine->PrintPlantInfo ;
+overlap=false
+label=Machine_p12b
+fontsize=12
+}

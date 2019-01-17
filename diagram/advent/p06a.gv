@@ -1,0 +1,17 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; CalcBoundaries; SwapNextToCurrent; RegisterNeighbors; PollCurrentExpand
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherCurrentExpand; HaveAnyNextExpand
+HaveAnyNextExpand->SuccessComplete [label=F];
+SwapNextToCurrent->HaveAnotherCurrentExpand ;
+HaveAnotherCurrentExpand->HaveAnyNextExpand [label=F];
+HaveAnyNextExpand->SwapNextToCurrent [label=T];
+PollCurrentExpand->HaveAnotherCurrentExpand ;
+CalcBoundaries->SwapNextToCurrent ;
+InitMachine->CalcBoundaries ;
+RegisterNeighbors->PollCurrentExpand ;
+HaveAnotherCurrentExpand->RegisterNeighbors [label=T];
+overlap=false
+label=Machine_p06a
+fontsize=12
+}

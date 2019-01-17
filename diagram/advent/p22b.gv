@@ -1,0 +1,22 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; CheckRegionOkay; AddLocationMoves; AddEquipmentChanges; LogExploration; PollIncomingQueue
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] AlreadyHavePosition; IsRegionRock; EquipOkayForRegion; ReachedFinish
+CheckRegionOkay->EquipOkayForRegion ;
+ReachedFinish->PollIncomingQueue [label=F];
+LogExploration->ReachedFinish ;
+AlreadyHavePosition->PollIncomingQueue [label=T];
+EquipOkayForRegion->PollIncomingQueue [label=F];
+AlreadyHavePosition->IsRegionRock [label=F];
+IsRegionRock->PollIncomingQueue [label=T];
+AddLocationMoves->AddEquipmentChanges ;
+PollIncomingQueue->AlreadyHavePosition ;
+ReachedFinish->SuccessComplete [label=T];
+IsRegionRock->CheckRegionOkay [label=F];
+EquipOkayForRegion->AddLocationMoves [label=T];
+InitMachine->AlreadyHavePosition ;
+AddEquipmentChanges->LogExploration ;
+overlap=false
+label=Machine_p22b
+fontsize=12
+}

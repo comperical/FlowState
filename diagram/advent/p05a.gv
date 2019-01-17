@@ -1,0 +1,15 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; ReadNextPolymer; RemovePolymerPair
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherPolymer; HavePolymerPair
+HavePolymerPair->RemovePolymerPair [label=T];
+HaveAnotherPolymer->ReadNextPolymer [label=T];
+RemovePolymerPair->HaveAnotherPolymer ;
+InitMachine->HaveAnotherPolymer ;
+HavePolymerPair->HaveAnotherPolymer [label=F];
+HaveAnotherPolymer->SuccessComplete [label=F];
+ReadNextPolymer->HavePolymerPair ;
+overlap=false
+label=Machine_p05a
+fontsize=12
+}

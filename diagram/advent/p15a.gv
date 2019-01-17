@@ -1,0 +1,28 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; InitTurnOrder; StepTowardEnemy; AttackEnemy; EndTurn; ResolveDeath; EndCreatureMove; IncrementRoundCount
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherCreature; EnemyInRange; HaveAttackTarget; HaveDeadCreature; AllCreaturesMoved; BattleOver
+BattleOver->HaveAnotherCreature [label=F];
+EnemyInRange->StepTowardEnemy [label=F];
+AllCreaturesMoved->IncrementRoundCount [label=T];
+HaveAnotherCreature->EnemyInRange [label=T];
+StepTowardEnemy->HaveAttackTarget ;
+HaveAttackTarget->EndCreatureMove [label=F];
+ResolveDeath->EndCreatureMove ;
+EndCreatureMove->AllCreaturesMoved ;
+AttackEnemy->HaveDeadCreature ;
+HaveDeadCreature->ResolveDeath [label=T];
+InitTurnOrder->HaveAnotherCreature ;
+EnemyInRange->AttackEnemy [label=T];
+InitMachine->InitTurnOrder ;
+HaveAttackTarget->AttackEnemy [label=T];
+EndTurn->InitTurnOrder ;
+HaveDeadCreature->EndCreatureMove [label=F];
+AllCreaturesMoved->BattleOver [label=F];
+BattleOver->SuccessComplete [label=T];
+HaveAnotherCreature->EndTurn [label=F];
+IncrementRoundCount->BattleOver ;
+overlap=false
+label=Machine_p15a
+fontsize=12
+}

@@ -1,0 +1,21 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; LogDispersion; StartSecondPass; ClockTick; ShowStars
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] IsInitialPass; DispersionIncreasing; ShouldShowStars; DoneSecondPass
+InitMachine->IsInitialPass ;
+IsInitialPass->ShouldShowStars [label=F];
+ShowStars->DoneSecondPass ;
+ShouldShowStars->ShowStars [label=T];
+DoneSecondPass->SuccessComplete [label=T];
+IsInitialPass->LogDispersion [label=T];
+DispersionIncreasing->StartSecondPass [label=T];
+ClockTick->IsInitialPass ;
+StartSecondPass->IsInitialPass ;
+DispersionIncreasing->ClockTick [label=F];
+LogDispersion->DispersionIncreasing ;
+DoneSecondPass->ClockTick [label=F];
+ShouldShowStars->DoneSecondPass [label=F];
+overlap=false
+label=Machine_p10
+fontsize=12
+}

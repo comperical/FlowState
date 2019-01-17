@@ -1,0 +1,24 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; PrepareColumn; PollYValue; SetInitialPower; AddSerialNumber; MultiplyByRackId; KeepHundredsDigit; SubtractFive; SetResult; PollXValue; BuildIntregralImage; IntegralCalculation
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherRow; HaveAnotherCol
+HaveAnotherCol->SetInitialPower [label=T];
+KeepHundredsDigit->SubtractFive ;
+HaveAnotherCol->PollYValue [label=F];
+IntegralCalculation->SuccessComplete ;
+SubtractFive->SetResult ;
+PollXValue->HaveAnotherCol ;
+HaveAnotherRow->BuildIntregralImage [label=F];
+BuildIntregralImage->IntegralCalculation ;
+SetResult->PollXValue ;
+PrepareColumn->HaveAnotherCol ;
+SetInitialPower->AddSerialNumber ;
+AddSerialNumber->MultiplyByRackId ;
+HaveAnotherRow->PrepareColumn [label=T];
+MultiplyByRackId->KeepHundredsDigit ;
+PollYValue->HaveAnotherRow ;
+InitMachine->HaveAnotherRow ;
+overlap=false
+label=Machine_p11b
+fontsize=12
+}

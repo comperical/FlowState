@@ -1,0 +1,15 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; CopyIptr2Register; ExecuteInstruction; CopyRegister2Iptr; IncrementInstPtr
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] ProgramTerminates
+InitMachine->ProgramTerminates ;
+IncrementInstPtr->ProgramTerminates ;
+ProgramTerminates->CopyIptr2Register [label=F];
+ExecuteInstruction->CopyRegister2Iptr ;
+ProgramTerminates->SuccessComplete [label=T];
+CopyIptr2Register->ExecuteInstruction ;
+CopyRegister2Iptr->IncrementInstPtr ;
+overlap=false
+label=Machine_p19a
+fontsize=12
+}

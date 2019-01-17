@@ -1,0 +1,20 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; ReadNodeInit; CreateKid; DropDown2Kid; ReadNextMeta; PopToParent
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] DoneWithKids; DoneWithMeta; AtTheTop
+DoneWithKids->DoneWithMeta [label=F];
+ReadNextMeta->DoneWithMeta ;
+DropDown2Kid->ReadNodeInit ;
+PopToParent->DoneWithKids ;
+DoneWithMeta->ReadNextMeta [label=T];
+ReadNodeInit->DoneWithKids ;
+CreateKid->DropDown2Kid ;
+DoneWithMeta->AtTheTop [label=F];
+AtTheTop->SuccessComplete [label=T];
+AtTheTop->PopToParent [label=F];
+InitMachine->ReadNodeInit ;
+DoneWithKids->CreateKid [label=T];
+overlap=false
+label=Machine_p08a
+fontsize=12
+}

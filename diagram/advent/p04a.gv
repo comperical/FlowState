@@ -1,0 +1,23 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; UpdateDate; UpdateGuardInfo; UpdateSleep; UpdateWake; PollEntry; ComputeResult
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherEntry; IsNewDate; IsGuardChange; IsFallAsleep
+IsGuardChange->IsFallAsleep [label=F];
+IsGuardChange->UpdateGuardInfo [label=T];
+InitMachine->HaveAnotherEntry ;
+UpdateGuardInfo->PollEntry ;
+UpdateDate->IsGuardChange ;
+HaveAnotherEntry->ComputeResult [label=F];
+HaveAnotherEntry->IsNewDate [label=T];
+IsFallAsleep->UpdateWake [label=F];
+ComputeResult->SuccessComplete ;
+IsFallAsleep->UpdateSleep [label=T];
+PollEntry->HaveAnotherEntry ;
+IsNewDate->IsGuardChange [label=F];
+IsNewDate->UpdateDate [label=T];
+UpdateSleep->PollEntry ;
+UpdateWake->PollEntry ;
+overlap=false
+label=Machine_p04a
+fontsize=12
+}

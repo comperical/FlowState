@@ -1,0 +1,21 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; InitProbeList; SetNextProbe; PrepareProbeInput; ReadNextPolymer; RemovePolymerPair; LogProbeResult
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveMoreProbes; HaveAnotherPolymer; HavePolymerPair
+HaveAnotherPolymer->LogProbeResult [label=F];
+HaveMoreProbes->SuccessComplete [label=F];
+ReadNextPolymer->HavePolymerPair ;
+HaveMoreProbes->SetNextProbe [label=T];
+HavePolymerPair->RemovePolymerPair [label=T];
+PrepareProbeInput->HaveAnotherPolymer ;
+LogProbeResult->HaveMoreProbes ;
+InitMachine->InitProbeList ;
+InitProbeList->HaveMoreProbes ;
+HaveAnotherPolymer->ReadNextPolymer [label=T];
+SetNextProbe->PrepareProbeInput ;
+HavePolymerPair->HaveAnotherPolymer [label=F];
+RemovePolymerPair->HaveAnotherPolymer ;
+overlap=false
+label=Machine_p05b
+fontsize=12
+}

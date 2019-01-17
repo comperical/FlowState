@@ -1,0 +1,16 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; BasicPlace; SpecialPlace; IncrementTurn
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] IsSpecialTurn; GameOver
+IsSpecialTurn->SpecialPlace [label=T];
+InitMachine->IsSpecialTurn ;
+IncrementTurn->GameOver ;
+BasicPlace->IncrementTurn ;
+GameOver->IsSpecialTurn [label=F];
+IsSpecialTurn->BasicPlace [label=F];
+GameOver->SuccessComplete [label=T];
+SpecialPlace->IncrementTurn ;
+overlap=false
+label=Machine_p09a
+fontsize=12
+}

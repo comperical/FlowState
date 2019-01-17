@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import os, re, copy
+import sys
 
 from diagram_util import GraphVizTool
 
@@ -101,6 +102,15 @@ class FiniteStateMachine:
 			if not statefunc in self.transition_map:
 				assert default_next is not None, "No default available for state {}".format(get_acro_name(statefunc))
 				self.transition_map[statefunc] = default_next
+
+		def statetype(trans):
+			if trans == 0:
+				return "end"
+			if type(trans) == dict:
+				return "query"
+			return "op"
+
+		self.state_type_map = { sfunc : statetype(trns) for sfunc, trns in self.transition_map.items() }
 				
 			
 	def interpret_transition_code(self, strcode, default_next):
@@ -152,6 +162,15 @@ class FiniteStateMachine:
 			self.name2_func_map[basicname] = functionref
 			self.acro2_func_map[basic2_acro(basicname)] = functionref
 				
+
+		idxes = [idx for idx, _ in slist]
+		if len(set(idxes)) < len(idxes):
+			for prbidx in idxes:
+				if len([myidx for myidx in idxes if myidx == prbidx]) > 1:
+					print("Error: Have repeated function index: {}".format(prbidx), file=sys.stderr)
+			assert False, "Repeated function indexes"
+
+
 		for (fidx, fref) in sorted(slist, key=lambda pr: pr[0]):
 			self.state_list.append(fref)
 
@@ -200,19 +219,22 @@ class FiniteStateMachine:
 	
 		self.cur_state_func = statefunc
 	
-	
+	def get_state(self):
+		return self.cur_state_func.__name__
+		
 	def get_state_type(self, statefunc):
-		curtrans = self.transition_map[statefunc]
+		return self.state_type_map[statefunc]
+
+	def run_until(self, conditfunc):
+
+		while True:
+			if conditfunc(self):
+				break
+
+			self.run_one_step()
+
+	def run_one_step(self):
 		
-		if curtrans == 0:
-			return "end"
-		if type(curtrans) == type({}):
-			return "query"
-		return "op"	
-		
-	def run_one_state(self):
-		
-		curbasic = get_basic_name(self.cur_state_func)
 		statetype = self.get_state_type(self.cur_state_func)
 		
 		# Log the state visit
@@ -221,17 +243,17 @@ class FiniteStateMachine:
 		for (sfunc, maxvisit) in self.max_visit_map.items():
 			assert self.state_visit_count[sfunc] <= maxvisit, "Visited state {} too many times".format(get_basic_name(sfunc))		
 		
-		assert statetype is not "end", "Attempt to run end state {}, should check for complete before calling".format(curbasic)
+		assert statetype is not "end", "Attempt to run end state {}, should check for complete before calling".format(self.cur_state_func.__name__)
 		
 		myreturn = self.cur_state_func()
 		
 		#print("Ran curstate {}, statetype is {}, return value is {}".format(curbasic, statetype, myreturn))
 				
 		if statetype == "op":
-			assert myreturn == None, "Got return value of {} in op state {}, op state should return None".format(myreturn, curbasic)
+			assert myreturn == None, "Got return value of {} in op state {}, op state should return None".format(myreturn, self.cur_state_func.__name__)
 			nextstate = self.transition_map[self.cur_state_func]
 		else:
-			assert myreturn in [True, False], "Got return value of {} in query state {}, query state should return True/False".format(myreturn, curbasic)
+			assert myreturn in [True, False], "Got return value of {} in query state {}, query state should return True/False".format(myreturn, self.cur_state_func.__name__)
 			nextstate = self.transition_map[self.cur_state_func][myreturn]
 		
 		#print("\t {} --> {}".format(curbasic, get_basic_name(nextstate)))
@@ -243,12 +265,12 @@ class FiniteStateMachine:
 
 	def run2_step_count(self, stepnum):
 		while self.step_count != stepnum:			
-			self.run_one_state()
+			self.run_one_step()
 
 	
 	def run2_completion(self):
 		while self.get_state_type(self.cur_state_func) != "end":
-			self.run_one_state()
+			self.run_one_step()
 			
 		for (sfunc, expvisit) in self.exact_visit_map.items():
 			assert self.state_visit_count[sfunc] == self.exact_visit_map[sfunc], (

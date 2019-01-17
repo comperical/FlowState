@@ -1,0 +1,14 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; PrintRecipeInfo; AddNewRecipes; AdvanceElves
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] FoundTargetSequence
+FoundTargetSequence->PrintRecipeInfo [label=F];
+AdvanceElves->FoundTargetSequence ;
+PrintRecipeInfo->AddNewRecipes ;
+FoundTargetSequence->SuccessComplete [label=T];
+AddNewRecipes->AdvanceElves ;
+InitMachine->PrintRecipeInfo ;
+overlap=false
+label=Machine_p14b
+fontsize=12
+}

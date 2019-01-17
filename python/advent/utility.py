@@ -4,14 +4,54 @@ import sys
 from collections import deque
 
 
+def extract_path(state, parents):
 
-def read_input_deque(pcode):
+    prnt = parents[state]
+
+    if prnt == None:
+        return [state]
+
+    return extract_path(prnt, parents) + [state]
+
+
+def state_search(start, succfunc, goalfunc, breadth=True):
+    
+    parents = { }
+
+    stack = deque( [(start, None)] )
+
+    goal = None
+
+    while goal == None and stack:
+
+        nstate, prnt = stack.popleft() if breadth else stack.pop()
+
+        if nstate in parents:
+            # Already explored, move on to next
+            continue
+
+        # Log visitation of new state
+        parents[nstate] = prnt
+
+        if goalfunc(nstate):
+            # Success, will end loop in next go-around
+            goal = nstate
+
+        # Extend the stack with all the ORDERED successors of the state
+        stack.extend([(succ, nstate) for succ in succfunc(nstate)])
+
+    return goal, parents
+
+
+
+def read_input_deque(pcode, dostrip=True):
     indq = deque([])
     inputpath = os.path.join(get_data_dir(), '{}.txt'.format(pcode))
 
     with open(inputpath, 'r') as fh:
         for line in fh:
-            indq.append(line.strip())
+            line = line.strip() if dostrip else line
+            indq.append(line)
 
     return indq
 
@@ -57,6 +97,10 @@ def write_gv_output(gvtool, gvpath):
 
 
 def check_problem_code(argstr):
-    probes = ["p{:02}".format(idx) for idx in range(1, 25)]
-    assert argstr in probes, "Invalid problem code {}, format is pXY".format(argstr)
-    return argstr
+
+    for idx in range(1, 25):
+        for charcode in ['a', 'b', 'c']:
+            if argstr == "p{:02}{}".format(idx, charcode):
+                return argstr
+
+    assert False, "Invalid problem code {}, format is pXY[a|b|c]".format(argstr)

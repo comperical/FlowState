@@ -1,0 +1,23 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; HandleOpen; HandleClose; HandlePipe; HandleBasicMove; PollInputToken; InputSanityCheck
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherInput; NextIsOpen; NextIsClose; NextIsPipe
+InputSanityCheck->SuccessComplete ;
+NextIsClose->HandleClose [label=T];
+HandleBasicMove->PollInputToken ;
+HaveAnotherInput->NextIsOpen [label=T];
+InitMachine->HaveAnotherInput ;
+NextIsPipe->HandleBasicMove [label=F];
+NextIsOpen->HandleOpen [label=T];
+HaveAnotherInput->InputSanityCheck [label=F];
+NextIsClose->NextIsPipe [label=F];
+HandleClose->PollInputToken ;
+NextIsOpen->NextIsClose [label=F];
+NextIsPipe->HandlePipe [label=T];
+HandlePipe->PollInputToken ;
+PollInputToken->HaveAnotherInput ;
+HandleOpen->PollInputToken ;
+overlap=false
+label=Machine_p20a
+fontsize=12
+}

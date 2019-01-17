@@ -1,0 +1,12 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; BuildXContribMap; BuildYContribMap; CountRegionSize
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] 
+BuildXContribMap->BuildYContribMap ;
+BuildYContribMap->CountRegionSize ;
+CountRegionSize->SuccessComplete ;
+InitMachine->BuildXContribMap ;
+overlap=false
+label=Machine_p06b
+fontsize=12
+}

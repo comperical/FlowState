@@ -1,0 +1,18 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; PrintPlantInfo; ResetIndex; IncrementIndex; NextGenCalc; CycleGeneration
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherIndex; HaveAnotherGeneration
+HaveAnotherIndex->CycleGeneration [label=F];
+CycleGeneration->HaveAnotherGeneration ;
+HaveAnotherGeneration->PrintPlantInfo [label=T];
+InitMachine->PrintPlantInfo ;
+ResetIndex->HaveAnotherIndex ;
+PrintPlantInfo->ResetIndex ;
+NextGenCalc->HaveAnotherIndex ;
+IncrementIndex->NextGenCalc ;
+HaveAnotherIndex->IncrementIndex [label=T];
+HaveAnotherGeneration->SuccessComplete [label=F];
+overlap=false
+label=Machine_p12
+fontsize=12
+}

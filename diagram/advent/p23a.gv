@@ -1,0 +1,11 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; FindStrongestNanobot; FindNanosInRange
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] 
+FindNanosInRange->SuccessComplete ;
+FindStrongestNanobot->FindNanosInRange ;
+InitMachine->FindStrongestNanobot ;
+overlap=false
+label=Machine_p23a
+fontsize=12
+}

@@ -1,0 +1,25 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; FindInitialReady; ClockTick; MarkCompletedTasks; AddToReadyList; PollCheckList; AssignTask2Worker
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherCheck; IsActionReady; AnyReady; HaveIdleWorker; AllActionsDone
+AnyReady->HaveIdleWorker [label=T];
+InitMachine->FindInitialReady ;
+AddToReadyList->PollCheckList ;
+AllActionsDone->SuccessComplete [label=T];
+AssignTask2Worker->AnyReady ;
+AnyReady->ClockTick [label=F];
+HaveIdleWorker->AssignTask2Worker [label=T];
+AllActionsDone->AnyReady [label=F];
+PollCheckList->HaveAnotherCheck ;
+HaveAnotherCheck->AllActionsDone [label=F];
+HaveIdleWorker->ClockTick [label=F];
+IsActionReady->PollCheckList [label=F];
+MarkCompletedTasks->HaveAnotherCheck ;
+ClockTick->MarkCompletedTasks ;
+IsActionReady->AddToReadyList [label=T];
+HaveAnotherCheck->IsActionReady [label=T];
+FindInitialReady->AnyReady ;
+overlap=false
+label=Machine_p07b
+fontsize=12
+}

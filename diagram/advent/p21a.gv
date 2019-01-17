@@ -1,0 +1,17 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; CopyIptr2Register; ExecuteInstruction; CopyRegister2Iptr; IncrementInstPtr
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HitTargetLine; ProgramTerminates
+IncrementInstPtr->HitTargetLine ;
+HitTargetLine->ProgramTerminates [label=F];
+ExecuteInstruction->CopyRegister2Iptr ;
+ProgramTerminates->SuccessComplete [label=T];
+CopyRegister2Iptr->IncrementInstPtr ;
+ProgramTerminates->CopyIptr2Register [label=F];
+HitTargetLine->SuccessComplete [label=T];
+InitMachine->HitTargetLine ;
+CopyIptr2Register->ExecuteInstruction ;
+overlap=false
+label=Machine_p21a
+fontsize=12
+}

@@ -1,0 +1,21 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; FindInitialReady; EmitAction; AddToReadyList; PollCheckList
+node [shape=diamond] FailComplete; SuccessComplete
+node [shape=ellipse] AnyReady; HaveAnotherCheck; IsActionReady; AllActionsDone
+IsActionReady->PollCheckList [label=F];
+FindInitialReady->AnyReady ;
+AnyReady->FailComplete [label=F];
+HaveAnotherCheck->IsActionReady [label=T];
+AddToReadyList->PollCheckList ;
+HaveAnotherCheck->AllActionsDone [label=F];
+AllActionsDone->AnyReady [label=F];
+EmitAction->HaveAnotherCheck ;
+PollCheckList->HaveAnotherCheck ;
+AllActionsDone->SuccessComplete [label=T];
+AnyReady->EmitAction [label=T];
+IsActionReady->AddToReadyList [label=T];
+InitMachine->FindInitialReady ;
+overlap=false
+label=Machine_p07a
+fontsize=12
+}

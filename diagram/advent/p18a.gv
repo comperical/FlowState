@@ -1,0 +1,15 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; ShowBoardInfo; ComposeNewGeo; ReplaceOldWithNew; ClockTick
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] ReachedEndPoint
+ReachedEndPoint->SuccessComplete [label=T];
+ClockTick->ShowBoardInfo ;
+ReachedEndPoint->ComposeNewGeo [label=F];
+InitMachine->ShowBoardInfo ;
+ComposeNewGeo->ReplaceOldWithNew ;
+ShowBoardInfo->ReachedEndPoint ;
+ReplaceOldWithNew->ClockTick ;
+overlap=false
+label=Machine_p18a
+fontsize=12
+}

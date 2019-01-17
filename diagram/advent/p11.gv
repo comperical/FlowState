@@ -1,0 +1,22 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; PrepareColumn; PollYValue; SetInitialPower; AddSerialNumber; MultiplyByRackId; KeepHundredsDigit; SubtractFive; SetResult; PollXValue
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherRow; HaveAnotherCol
+MultiplyByRackId->KeepHundredsDigit ;
+KeepHundredsDigit->SubtractFive ;
+PrepareColumn->HaveAnotherCol ;
+SubtractFive->SetResult ;
+HaveAnotherRow->PrepareColumn [label=T];
+SetResult->PollXValue ;
+SetInitialPower->AddSerialNumber ;
+PollXValue->HaveAnotherCol ;
+PollYValue->HaveAnotherRow ;
+AddSerialNumber->MultiplyByRackId ;
+HaveAnotherCol->SetInitialPower [label=T];
+InitMachine->HaveAnotherRow ;
+HaveAnotherRow->SuccessComplete [label=F];
+HaveAnotherCol->PollYValue [label=F];
+overlap=false
+label=Machine_p11
+fontsize=12
+}

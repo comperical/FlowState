@@ -1,0 +1,21 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; CheckAgainstSim; CopyIptr2Register; ExecuteInstruction; CopyRegister2Iptr; IncrementInstPtr; MarkStateLog
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HitLogPoint; ProgramTerminates; CheckStateLog
+ProgramTerminates->CopyIptr2Register [label=F];
+MarkStateLog->ProgramTerminates ;
+CopyIptr2Register->ExecuteInstruction ;
+IncrementInstPtr->HitLogPoint ;
+HitLogPoint->ProgramTerminates [label=F];
+CheckAgainstSim->CheckStateLog ;
+CheckStateLog->SuccessComplete [label=T];
+CheckStateLog->MarkStateLog [label=F];
+ProgramTerminates->SuccessComplete [label=T];
+InitMachine->HitLogPoint ;
+CopyRegister2Iptr->IncrementInstPtr ;
+HitLogPoint->CheckAgainstSim [label=T];
+ExecuteInstruction->CopyRegister2Iptr ;
+overlap=false
+label=Machine_p21b
+fontsize=12
+}

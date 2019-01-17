@@ -1,0 +1,34 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; CopyNewBoard; PrintBoard; SetupProbeList; ClearChangeList; MarkNewWater; MarkLeftSupport; MarkRightSupport; PollProbePoint; ReplaceOldWithNew
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherProbe; HasWater; PositionIsSettled; WaterAbove; SupportedWaterNeighbor; SupportedOnLeft; SupportedOnRight; ReachedSteadyState
+SupportedOnRight->PollProbePoint [label=F];
+WaterAbove->SupportedWaterNeighbor [label=F];
+SupportedWaterNeighbor->PollProbePoint [label=F];
+HasWater->PositionIsSettled [label=T];
+InitMachine->CopyNewBoard ;
+MarkLeftSupport->SupportedOnRight ;
+WaterAbove->MarkNewWater [label=T];
+ReplaceOldWithNew->CopyNewBoard ;
+PrintBoard->SetupProbeList ;
+SupportedOnRight->MarkRightSupport [label=T];
+ReachedSteadyState->SuccessComplete [label=T];
+PositionIsSettled->SupportedOnLeft [label=F];
+MarkRightSupport->PollProbePoint ;
+ClearChangeList->HaveAnotherProbe ;
+ReachedSteadyState->ReplaceOldWithNew [label=F];
+PositionIsSettled->PollProbePoint [label=T];
+SupportedOnLeft->MarkLeftSupport [label=T];
+HaveAnotherProbe->ReachedSteadyState [label=F];
+SupportedOnLeft->SupportedOnRight [label=F];
+HaveAnotherProbe->HasWater [label=T];
+SetupProbeList->ClearChangeList ;
+SupportedWaterNeighbor->MarkNewWater [label=T];
+HasWater->WaterAbove [label=F];
+MarkNewWater->PollProbePoint ;
+PollProbePoint->HaveAnotherProbe ;
+CopyNewBoard->PrintBoard ;
+overlap=false
+label=Machine_p17a
+fontsize=12
+}

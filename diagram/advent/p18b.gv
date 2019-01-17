@@ -1,0 +1,17 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; ShowBoardInfo; ComposeNewGeo; ReplaceOldWithNew; ClockTick; UpdateGeographyLog; FinishComputation
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveLogCycle
+FinishComputation->SuccessComplete ;
+ReplaceOldWithNew->ClockTick ;
+ShowBoardInfo->ComposeNewGeo ;
+ClockTick->HaveLogCycle ;
+UpdateGeographyLog->ShowBoardInfo ;
+HaveLogCycle->FinishComputation [label=T];
+HaveLogCycle->UpdateGeographyLog [label=F];
+ComposeNewGeo->ReplaceOldWithNew ;
+InitMachine->ShowBoardInfo ;
+overlap=false
+label=Machine_p18b
+fontsize=12
+}
