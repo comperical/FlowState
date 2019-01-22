@@ -2,13 +2,13 @@ digraph MyGraphName {
 node [shape=box] InitMachine; CalcInitialElfCount; BuildSubMachine; RunSubMachine; IncrementBoost
 node [shape=diamond] SuccessComplete
 node [shape=ellipse] ZeroElfDeaths
-BuildSubMachine->RunSubMachine ;
 RunSubMachine->ZeroElfDeaths ;
-ZeroElfDeaths->IncrementBoost [label=F];
 IncrementBoost->BuildSubMachine ;
-InitMachine->CalcInitialElfCount ;
 CalcInitialElfCount->BuildSubMachine ;
+BuildSubMachine->RunSubMachine ;
 ZeroElfDeaths->SuccessComplete [label=T];
+ZeroElfDeaths->IncrementBoost [label=F];
+InitMachine->CalcInitialElfCount ;
 overlap=false
 label=Machine_p15b
 fontsize=12

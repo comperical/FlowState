@@ -1,0 +1,16 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; BuildStarLinks; ReassignConstellation; PollLinkStack
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] HaveAnotherLink; LinkSameConstellation
+ReassignConstellation->PollLinkStack ;
+InitMachine->BuildStarLinks ;
+LinkSameConstellation->PollLinkStack [label=T];
+HaveAnotherLink->SuccessComplete [label=F];
+LinkSameConstellation->ReassignConstellation [label=F];
+HaveAnotherLink->LinkSameConstellation [label=T];
+PollLinkStack->HaveAnotherLink ;
+BuildStarLinks->HaveAnotherLink ;
+overlap=false
+label=Machine_p25a
+fontsize=12
+}

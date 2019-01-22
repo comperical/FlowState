@@ -53,8 +53,8 @@ class PMachine(FiniteStateMachine):
 
     def s10_zero_elf_deaths(self):
         survivors = self.get_elf_count(self.submachine)
-        print("Status is: {}".format(self.submachine.get_health_status()))
-        print("For boost={}, have {} survivors, vs {} initial".format(self.eboost, survivors, self.init_elf_count))
+        #print("Status is: {}".format(self.submachine.get_health_status()))
+        #print("For boost={}, have {} survivors, vs {} initial".format(self.eboost, survivors, self.init_elf_count))
         return self.get_elf_count(self.submachine) == self.init_elf_count
 
     def s15_increment_boost(self):

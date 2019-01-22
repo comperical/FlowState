@@ -172,7 +172,7 @@ class PMachine(FiniteStateMachine):
                 ccode = line[xidx]
                 self.process_input_code(xidx, yidx, ccode)
 
-        print("Read input data, have {} walls and {} creatures".format(len(self.walls), len(self.creatures)))
+        #print("Read input data, have {} walls and {} creatures".format(len(self.walls), len(self.creatures)))
 
     def s4_init_turn_order(self):
         clist = list(self.creatures.values())

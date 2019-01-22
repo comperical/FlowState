@@ -1,22 +1,24 @@
 digraph MyGraphName {
-node [shape=box] InitMachine; HandleOpen; HandleClose; HandlePipe; HandleBasicMove; PollInputToken; InputSanityCheck
+node [shape=box] InitMachine; SlurpShipBasic; PollOpenToken; BeginOrBlock; RecursiveOrCall; PollPipeToken; PollCloseToken; ShipOrBlock; InputSanityCheck
 node [shape=diamond] SuccessComplete
-node [shape=ellipse] HaveAnotherInput; NextIsOpen; NextIsClose; NextIsPipe
+node [shape=ellipse] EndOfInput; IsEndingToken; IsMoveToken; IsPipeToken
+EndOfInput->IsEndingToken [label=F];
+IsEndingToken->InputSanityCheck [label=T];
+IsMoveToken->PollOpenToken [label=F];
+EndOfInput->InputSanityCheck [label=T];
+IsMoveToken->SlurpShipBasic [label=T];
+IsEndingToken->IsMoveToken [label=F];
+BeginOrBlock->RecursiveOrCall ;
+PollPipeToken->RecursiveOrCall ;
+RecursiveOrCall->IsPipeToken ;
+ShipOrBlock->EndOfInput ;
+IsPipeToken->PollCloseToken [label=F];
+InitMachine->EndOfInput ;
+IsPipeToken->PollPipeToken [label=T];
+PollCloseToken->ShipOrBlock ;
 InputSanityCheck->SuccessComplete ;
-NextIsClose->HandleClose [label=T];
-HandleBasicMove->PollInputToken ;
-HaveAnotherInput->NextIsOpen [label=T];
-InitMachine->HaveAnotherInput ;
-NextIsPipe->HandleBasicMove [label=F];
-NextIsOpen->HandleOpen [label=T];
-HaveAnotherInput->InputSanityCheck [label=F];
-NextIsClose->NextIsPipe [label=F];
-HandleClose->PollInputToken ;
-NextIsOpen->NextIsClose [label=F];
-NextIsPipe->HandlePipe [label=T];
-HandlePipe->PollInputToken ;
-PollInputToken->HaveAnotherInput ;
-HandleOpen->PollInputToken ;
+SlurpShipBasic->EndOfInput ;
+PollOpenToken->BeginOrBlock ;
 overlap=false
 label=Machine_p20a
 fontsize=12
