@@ -2,12 +2,12 @@ digraph MyGraphName {
 node [shape=box] InitMachine; PrintRecipeInfo; AddNewRecipes; AdvanceElves
 node [shape=diamond] SuccessComplete
 node [shape=ellipse] HaveEnoughRecipes
-PrintRecipeInfo->AddNewRecipes ;
-HaveEnoughRecipes->PrintRecipeInfo [label=F];
+InitMachine->PrintRecipeInfo ;
 AdvanceElves->HaveEnoughRecipes ;
 HaveEnoughRecipes->SuccessComplete [label=T];
+PrintRecipeInfo->AddNewRecipes ;
+HaveEnoughRecipes->PrintRecipeInfo [label=F];
 AddNewRecipes->AdvanceElves ;
-InitMachine->PrintRecipeInfo ;
 overlap=false
 label=Machine_p14a
 fontsize=12

@@ -1,17 +1,22 @@
 digraph MyGraphName {
-node [shape=box] InitMachine; GenerateDiamondVertices; ScoreVertex; FindBestDiamonds; FindSupportingPlanes; WalkToBetter
+node [shape=box] InitMachine; SetupPartitionSearch; CheckNewTargets; PollProbeStack; AddNewTargets; SearchSuccess; IncreaseLowerBound; SearchFailed; DecreaseUpperBound
 node [shape=diamond] SuccessComplete
-node [shape=ellipse] HaveAnotherVertex; CanWalkToBetter
-HaveAnotherVertex->FindBestDiamonds [label=F];
-CanWalkToBetter->WalkToBetter [label=T];
-GenerateDiamondVertices->HaveAnotherVertex ;
-FindBestDiamonds->FindSupportingPlanes ;
-WalkToBetter->CanWalkToBetter ;
-ScoreVertex->HaveAnotherVertex ;
-HaveAnotherVertex->ScoreVertex [label=T];
-FindSupportingPlanes->CanWalkToBetter ;
-InitMachine->GenerateDiamondVertices ;
-CanWalkToBetter->SuccessComplete [label=F];
+node [shape=ellipse] BoundsConverged; HaveAnotherProbe; FoundExactTarget
+BoundsConverged->SuccessComplete [label=T];
+FoundExactTarget->AddNewTargets [label=F];
+InitMachine->BoundsConverged ;
+SetupPartitionSearch->HaveAnotherProbe ;
+SearchFailed->DecreaseUpperBound ;
+PollProbeStack->FoundExactTarget ;
+BoundsConverged->SetupPartitionSearch [label=F];
+DecreaseUpperBound->BoundsConverged ;
+AddNewTargets->HaveAnotherProbe ;
+HaveAnotherProbe->SearchFailed [label=F];
+FoundExactTarget->SearchSuccess [label=T];
+HaveAnotherProbe->CheckNewTargets [label=T];
+CheckNewTargets->PollProbeStack ;
+IncreaseLowerBound->BoundsConverged ;
+SearchSuccess->IncreaseLowerBound ;
 overlap=false
 label=Machine_p23b
 fontsize=12

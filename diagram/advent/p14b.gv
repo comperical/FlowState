@@ -1,13 +1,18 @@
 digraph MyGraphName {
-node [shape=box] InitMachine; PrintRecipeInfo; AddNewRecipes; AdvanceElves
+node [shape=box] InitMachine; PrintRecipeInfo; AddFirstRecipe; AddBasicRecipe; AdvanceElves
 node [shape=diamond] SuccessComplete
-node [shape=ellipse] FoundTargetSequence
-FoundTargetSequence->PrintRecipeInfo [label=F];
-AdvanceElves->FoundTargetSequence ;
-PrintRecipeInfo->AddNewRecipes ;
-FoundTargetSequence->SuccessComplete [label=T];
-AddNewRecipes->AdvanceElves ;
+node [shape=ellipse] HaveTwoNewRecipes; FirstPassCheckSolution; SecondPassCheckSolution
+PrintRecipeInfo->HaveTwoNewRecipes ;
+SecondPassCheckSolution->SuccessComplete [label=T];
+AdvanceElves->SecondPassCheckSolution ;
+HaveTwoNewRecipes->AddFirstRecipe [label=T];
+SecondPassCheckSolution->PrintRecipeInfo [label=F];
+FirstPassCheckSolution->SuccessComplete [label=T];
+AddBasicRecipe->AdvanceElves ;
+HaveTwoNewRecipes->AddBasicRecipe [label=F];
+FirstPassCheckSolution->AddBasicRecipe [label=F];
 InitMachine->PrintRecipeInfo ;
+AddFirstRecipe->FirstPassCheckSolution ;
 overlap=false
 label=Machine_p14b
 fontsize=12

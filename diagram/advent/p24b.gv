@@ -1,0 +1,12 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; IncrementBoost
+node [shape=diamond] ProblemComplete
+node [shape=ellipse] IsImmuneVictory
+InitMachine->IsImmuneVictory ;
+IsImmuneVictory->ProblemComplete [label=T];
+IncrementBoost->IsImmuneVictory ;
+IsImmuneVictory->IncrementBoost [label=F];
+overlap=false
+label=Machine_p24b
+fontsize=12
+}

@@ -6,6 +6,27 @@ from collections import deque
 import utility as U
 from finite_state import *
 
+
+class Recipe:
+
+
+    def __init__(self, rval):
+        self.value = rval
+
+        self.idxpos = None
+        self.next = None
+        self.prev = None
+
+        self.fast_jump = None
+
+    def fastappend(self, nextrec):
+        assert nextrec.next == None
+        assert self.next == None
+        self.next = nextrec
+
+        nextrec.idxpos = self.idxpos+1
+        nextrec.prev = self
+
 class PMachine(FiniteStateMachine):
     
     
@@ -13,86 +34,187 @@ class PMachine(FiniteStateMachine):
         
         statemap = """
         {
-            "FTS" : "F:PRI"
+            "SPCS" : "F:PRI",
+            "FPCS" : "T:SC",
+            "HTNR" : "F:ABR"
         }
         """
         
         FiniteStateMachine.__init__(self, json.loads(statemap))
+
         self.is_test = False
         self.target_sequence = "760221"
 
-        self.recipes = bytearray([3, 7])
+        self.recipe_head = Recipe(3)
+        self.recipe_head.idxpos = 0
+        self.recipe_tail = self.recipe_head
+        self.append_recipe(7)
 
-        self.elf1 = 0
-        self.elf2 = 1
+        self.elf1 = self.recipe_head
+        self.elf2 = self.recipe_tail
 
+
+    def recipe_count(self):
+        return self.recipe_tail.idxpos + 1
 
     def get_result(self):
-        return len(self.recipes) - len(self.target_sequence)
+        self.print_recipes()
 
-    def get_result_at(self, tg):
-        assert tg + 10 < len(self.recipes), "Requested TG={} but only have {} recipes".format(tg, len(self.recipes))
-        return "".join([str(r) for r in self.recipes[tg:tg+10]])
+        return self.recipe_count() - len(self.target_sequence)
 
     def s1_init_machine(self):
         self.tseq_list = [int(c) for c in self.target_sequence]
 
     def s3_print_recipe_info(self):
+        self.print_recipes()
 
-        if len(self.recipes) >= 30 or not self.is_test:
+    def print_recipes(self):
+        if self.recipe_tail.idxpos >= 30 or not self.is_test:
             return
 
-        for idx, r in enumerate(self.recipes):
-            sp = " {} ".format(r)
-            if idx == self.elf1:
-                sp = "({})".format(r)
-            elif idx == self.elf2:
-                sp = "[{}]".format(r)
+        ptr = self.recipe_head
+
+        while ptr != None:
+            sp = " {} ".format(ptr.value)
+            if ptr == self.elf1:
+                sp = "({})".format(ptr.value)
+            elif ptr == self.elf2:
+                sp = "[{}]".format(ptr.value)
             print(sp, end='')
+
+            ptr = ptr.next
 
         print("")
 
-    def s4_add_new_recipes(self):
 
-        rsum = self.recipes[self.elf1] + self.recipes[self.elf2]
+    def s4_have_two_new_recipes(self):
+        rsum = self.elf1.value + self.elf2.value
+        return rsum >= 10
 
-        for c in str(rsum):
-            self.recipes.append(int(c))
+    def s5_add_first_recipe(self):
+        rsum = self.elf1.value + self.elf2.value
+        self.append_recipe(rsum // 10)
 
 
-    def s6_advance_elves(self):
-        def newpos(p):
-            np = p + self.recipes[p] + 1
-            return np % len(self.recipes)
+    def s8_first_pass_check_solution(self):
+        return self.fast_prefix_check()
 
-        self.elf1 = newpos(self.elf1)
-        self.elf2 = newpos(self.elf2)
+
+    def s10_add_basic_recipe(self):
+        rsum = self.elf1.value + self.elf2.value
+        self.append_recipe(rsum % 10)
+
+
+
+    def append_recipe(self, rc):
+        newnode = Recipe(int(rc))
+        self.recipe_tail.fastappend(newnode)
+        self.recipe_tail = self.recipe_tail.next
+
+
+    def jump_to_next(self, orig):
+        if orig.fast_jump != None:
+            return orig.fast_jump
+
+        cycled = False
+        gimp = orig
+        #numstep = orig.idxpos + orig.value + 1  
+        numstep = orig.value + 1      
+
+        for _ in range(numstep):
+            if gimp.next != None:
+                gimp = gimp.next
+                continue
+
+            gimp = self.recipe_head
+            cycled = True
+
+
+        if not cycled:
+            # Log the jump result, IF we didn't cycle
+            orig.fast_jump = gimp
+
+        return gimp
+
+
+    def s18_advance_elves(self):
+
+        #self.elf1 = newpos(self.elf1)
+        #self.elf2 = newpos(self.elf2)
+
+        self.elf1 = self.jump_to_next(self.elf1)
+        self.elf2 = self.jump_to_next(self.elf2)
+
+        #self.elf1 = self.slow_index_jump(self.elf1)
+        #self.elf2 = self.slow_index_jump(self.elf2)
+
+    def slow_index_jump(self, elf):
+        np = elf.idxpos + elf.value + 1
+        np = np % (self.recipe_tail.idxpos+1)
+        return self.slow_index_lookup(np)
+
+    def slow_index_lookup(self, idx):
+        ptr = self.recipe_head
+
+        for _ in range(idx):
+            ptr = ptr.next
+
+        return ptr
+
 
     def get_current_suffix(self):
-        suffix = self.recipes[-len(self.target_sequence):]
-        return "".join([str(r) for r in suffix])
+
+        ptr = self.backup_from_tail(len(self.target_sequence)-1)
+        suffix = ""
+
+        for _ in range(len(self.target_sequence)):
+            suffix += str(ptr.value)
+
+            if ptr.next == None:
+                break 
+
+            ptr = ptr.next
+
+        return suffix
+
 
     def slow_suffix_check(self):    
         return self.get_current_suffix() == self.target_sequence
 
+
+    def backup_from_tail(self, numstep):
+        ptr = self.recipe_tail
+
+        for _ in range(numstep):
+            if ptr.prev == None:
+                break 
+            ptr = ptr.prev
+
+        return ptr
+
     def fast_prefix_check(self):
-        for d in range(len(self.tseq_list)):
-            p = len(self.recipes)-len(self.tseq_list) + d
 
-            if p < 0:
+
+        if self.recipe_count() < len(self.tseq_list):
+            return False
+
+        ptr = self.recipe_tail
+        checkseq = copy.copy(self.tseq_list)
+        checkseq.reverse()
+
+        for idx, cseq in enumerate(checkseq):
+            if cseq != ptr.value:
                 return False
 
-            if self.recipes[p] != self.tseq_list[d]:
-                return False
+            if idx == len(self.tseq_list)-2:
+                csuffix = self.get_current_suffix()
+                print("Have {} recipes, current suffix is {}".format(self.recipe_count(), csuffix))
 
-            if d == 3 and not self.is_test:
-                csuff = self.get_current_suffix()
-                print("Got suffix {}, target is {}, #recipe={}, memory={}".format(csuff, self.target_sequence, len(self.recipes), sys.getsizeof(self.recipes)))
+            ptr = ptr.prev
 
         return True
 
-
-    def s15_found_target_sequence(self):
+    def s20_second_pass_check_solution(self):
         return self.fast_prefix_check()
 
     def s30_success_complete(self):

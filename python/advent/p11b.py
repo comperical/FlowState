@@ -56,7 +56,6 @@ class IntgImage:
         A = self.get_integ_value(lowpt[0]-1, lowpt[1]-1)
         B = self.get_integ_value(lowpt[0]-1+xwidth, lowpt[1]-1)
         C = self.get_integ_value(lowpt[0]-1, lowpt[1]-1+ywidth)
-
         D = self.get_integ_value(lowpt[0]+xwidth-1, lowpt[1]+ywidth-1)
 
         return D + A - B - C
@@ -97,23 +96,23 @@ class PMachine(FiniteStateMachine):
         self.xvals = None
         self.yvals = None
 
-        self.serial_number = 57
+        self.serial_number = 2568
 
     def get_result(self):
         
         results = []
 
-        for xpt in range(1, 301):
-            for ypt in range(1, 301):
-                results.append((xpt, ypt, self.calc_square_total(xpt, ypt)))
+        for idx in range(1, 301):
+            for jdx in range(1, 301):
+                for sze in range(1, 301):
+                    if idx + sze > 301 or jdx + sze > 301:
+                        continue
 
+                    thesum = self.intimage.fast_calc((idx, jdx), sze, sze)
+                    results.append(((idx, jdx, sze), thesum))
 
-        results = sorted(results, key=lambda x: -x[2])
-
-        print(results[0])
-
-        return results[0]
-
+        results = sorted(results, key=lambda x: -x[1])
+        return results[0][0]
 
     def calc_square_total(self, xpt, ypt, showsquare=False):
 
@@ -144,7 +143,13 @@ class PMachine(FiniteStateMachine):
 
         # Use 301 here so that we don't have to futz around with 0/1 indexing
         # Use magic number so you know you screwed up if you try to index it
-        self.values = [[-12345678 for _ in range(301)] for _ in range(301)]
+        self.values = []
+
+        while len(self.values) < 301:
+            onerow = [-12345678 for _ in range(301)]
+            self.values.append(onerow)
+
+        #self.values = [[-12345678 for _ in range(301)] for _ in range(301)]
 
         self.yvals = deque(range(1, 301))
 
@@ -152,19 +157,14 @@ class PMachine(FiniteStateMachine):
     def s3_have_another_row(self):
         return len(self.yvals) > 0
 
-
-
     def s4_prepare_column(self):
         self.xvals = deque(range(1, 301))
-
 
     def s5_have_another_col(self):
         return len(self.xvals) > 0
 
     def s6_poll_y_value(self):
         self.yvals.popleft()
-
-
 
     def get_current_rack_id(self):
         return self.xvals[0] + 10
@@ -200,29 +200,6 @@ class PMachine(FiniteStateMachine):
 
     def s18_build_intregral_image(self):
         self.intimage = IntgImage(self.values)
-
-
-    def s24_integral_calculation(self):
-
-        results = []
-
-        for idx in range(1, 301):
-            for jdx in range(1, 301):
-                for sze in range(1, 301):
-                    if idx + sze > 301 or jdx + sze > 301:
-                        continue
-
-                    thesum = self.intimage.fast_calc((idx, jdx), sze, sze)
-                    results.append(((idx, jdx, sze), thesum))
-
-
-        results = sorted(results, key=lambda x: -x[1])
-
-        for idx in range(10):
-            print("RTup is {}".format(results[idx]))
-
-        print("Got best result {}".format(results[0]))
-
 
     def s30_success_complete(self):
         pass    
@@ -271,39 +248,26 @@ def integ_image_test():
         
     print("Checked {} queries".format(1000))
 
+
 def run_tests():
 
-    mini_image_test()
+    #mini_image_test()
 
-    integ_image_test()
+    #integ_image_test()
 
-    #testdata = [[122, 79, 57, -5], [217,196,39,0], [101,153,71,4]]
+    testdata = [(18, (90, 269, 16)), (42, (232, 251, 12))]
 
-    testdata = [18, 42]
-
-    for snum in testdata:
+    for snum, expect in testdata:
 
         pmachine = PMachine()
         pmachine.serial_number = snum
         pmachine.run2_completion()
-        #assert pmachine.values[xval][yval] == expect
-    
-        #print("Got value {} as expected".format(expect))   
 
-
-    
-    """
-
-    nextdata = [[21, 61, 42, 30], [33,45, 18, 29]]
-
-    for xval, yval, snum, expect in nextdata:
-
-        pmachine = PMachine()
-        pmachine.serial_number = snum
-        pmachine.run2_completion()
-        result = pmachine.calc_square_total(xval, yval, showsquare=True)
+        result = pmachine.get_result()
+        print("For serial={}, expected {}, observed {}".format(snum, expect, result))
         assert result == expect
-        print("Got value {}={} as expected".format(result, expect))  
+    
 
-    """   
+
+
 

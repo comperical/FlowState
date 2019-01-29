@@ -1,0 +1,14 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; BuildInitialCube; GenerateSubCubes; ScoreSubCubes; PromoteBestCube; DownToSinglePoint
+node [shape=diamond] SuccessComplete
+node [shape=ellipse] 
+ScoreSubCubes->PromoteBestCube ;
+DownToSinglePoint->SuccessComplete ;
+GenerateSubCubes->ScoreSubCubes ;
+PromoteBestCube->DownToSinglePoint ;
+BuildInitialCube->GenerateSubCubes ;
+InitMachine->BuildInitialCube ;
+overlap=false
+label=Machine_p23new
+fontsize=12
+}

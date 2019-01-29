@@ -8,44 +8,32 @@ import utility as U
 sys.path.append("..")
 from finite_state import *
 
+
+import p23reddit
+
 def mdist2origin(pt):
     assert len(pt) == 3
     return sum([abs(x) for x in pt])
 
 
-def get_bots():
+COUNT_LOG = deque()
 
-    values = U.read_input_deque('p23')
+def clear_count_log():
+    global COUNT_LOG
+    assert len(COUNT_LOG) == 0
+    COUNT_LOG.clear()
 
-    r = re.compile("pos=<([0-9-]+),([0-9-]+),([0-9-]+)>, r=([0-9]+)")
-    bots = []
-    for cur in values:
-        m = r.search(cur)
-        if m is None:
-            print(cur)
-        bots.append([int(x) for x in m.groups()])
-    return bots
+def log_count_operation(scode, pt):
 
+    assert scode in ['original', 'machine']
 
-def count_for_point(bots, x, y, z, dist):
+    global COUNT_LOG
+    if scode == 'original':
+        COUNT_LOG.append(pt)
+        return
 
-    count = 0
-    for bx, by, bz, bdist in bots:
-
-        calc = abs(x - bx) + abs(y - by) + abs(z - bz)
-
-        if dist == 1:
-            if calc <= bdist:
-                count += 1
-        else:
-            # The minus three is to include the current box 
-            # in any bots that are near it
-            if calc // dist - 3 <= (bdist) // dist:
-                count += 1
-
-    return count    
-
-
+    logpt = COUNT_LOG.popleft()
+    assert logpt == pt, "Logged point is {}, but machine tried {}".format(logpt, pt)
 
 
 class PMachine(FiniteStateMachine):
@@ -55,57 +43,47 @@ class PMachine(FiniteStateMachine):
         
         statemap = """
         {   
-            "BC" : "T:SC",
-            "HAP" : "F:SF",
-            "FET" : "T:SS",
-            "ANT" : "HAP",
-            "DUB" : "BC",
-            "ILB" : "BC"
+            "HAP" : "F:FC",
+            "FET" : "T:SC",
+            "ANT" : "HAP"
         }
         """
         
         FiniteStateMachine.__init__(self, json.loads(statemap))
 
-        self.nanobots = get_bots()
+        self.nanobots = None
+
+        self.forced_count = None
 
         # These are x/y/z/dist tuples
-        self.probes = None
+        self.probes = deque([])
 
         self.newtargets = []
 
-        self.achieved_lower_bound = 1
-        self.unachieved_upper_bound = 1000
+
+    def initialize(self, bots, fcount):
+
+        self.nanobots = bots
+
+        self.forced_check = fcount
+
 
     def get_result(self):
-        return mdist2origin(self.best_point)
+        if len(self.newtargets) == 0:
+            assert len(self.probes) == 0
+            return None, None
+
+        x, y, z, dist, cnt, mandist = self.newtargets[0]
+        assert dist == 0
+        return mandist, cnt
 
     def s1_init_machine(self):
-        pass
 
-    def s5_bounds_converged(self):
-        return self.achieved_lower_bound + 1 == self.unachieved_upper_bound
+        assert self.nanobots != None and self.forced_check != None
 
-    def initialize_probes(self):
-        xs = [x[0] for x in self.nanobots]
-        ys = [x[1] for x in self.nanobots]
-        zs = [x[2] for x in self.nanobots]
+        assert len(self.probes) == 1, "Must add a single probe point"
 
-        # Pick a starting resolution big enough to find all of the bots
-        dist = 1
-        while dist < max(xs) - min(xs) or dist < max(ys) - min(ys) or dist < max(zs) - min(zs):
-            dist *= 2
-
-        initpt = (min(xs), min(ys), min(zs), dist)
-        self.probes = deque([initpt])
-
-    def s6_setup_partition_search(self):
-
-        bound_gap = self.unachieved_upper_bound - self.achieved_lower_bound
-        assert bound_gap > 1
-        self.attempt_reqd_count = self.achieved_lower_bound + bound_gap // 2
-
-        print("searching with bounds={}/{}, attempt={}".format(self.achieved_lower_bound, self.unachieved_upper_bound, self.attempt_reqd_count))
-        self.initialize_probes()
+        #assert self.nanobots != None, "You must set the nanobots externally"
 
 
     def s8_have_another_probe(self):
@@ -121,13 +99,18 @@ class PMachine(FiniteStateMachine):
                 for z in [zp, zp+dist]:
 
                     # See how many bots are possible
-                    count = count_for_point(self.nanobots, x, y, z, dist)
+                    count = p23reddit.count_for_point(self.nanobots, x, y, z, dist)
 
-                    if count >= self.attempt_reqd_count:
-                        ntargs.append((x, y, z, dist // 2, count))
+                    log_count_operation('machine', (x, y, z, dist))
+
+                    if count >= self.forced_check:
+                        #print("Got count ={} point {}, {}, {}, {}".format(count, x, y, z, dist))
+
+                        ntargs.append((x, y, z, dist // 2, count, abs(x) + abs(y) + abs(z)))
+
 
         # This can often be empty
-        self.newtargets = sorted(ntargs, key=lambda x: mdist2origin((x[0], x[1], x[2])))
+        self.newtargets = sorted(ntargs, key=lambda x: x[5])
 
 
     def s14_poll_probe_stack(self):
@@ -138,33 +121,20 @@ class PMachine(FiniteStateMachine):
         if len(self.newtargets) == 0:
             return False
 
-        _, _, _, dist, _ = self.newtargets[0]
+        _, _, _, dist, _, _ = self.newtargets[0]
         return dist == 0
 
     def s20_add_new_targets(self):
-        for x, y, z, dist, _ in reversed(self.newtargets):
+        for x, y, z, dist, _, _ in reversed(self.newtargets):
             self.probes.appendleft((x, y, z, dist))
 
 
-    def s30_search_success(self):
-        x, y, z, dist, cnt = self.newtargets[0]
-        assert dist == 0
-        self.best_point = (x, y, z)
-        self.best_count = cnt
-
-        print("Successful search at attempted_count={}, best point is {}, count is {}, mdist={}".format(self.attempt_reqd_count, self.best_point, self.best_count, mdist2origin(self.best_point)))
-
-    def s31_increase_lower_bound(self):
-        self.achieved_lower_bound = self.attempt_reqd_count
-
-    def s32_search_failed(self):
-        print("Search failed at attempted_count={}".format(self.attempt_reqd_count))
-
-    def s33_decrease_upper_bound(self):
-        self.unachieved_upper_bound = self.attempt_reqd_count
-
-    def s36_success_complete(self):
+    def s30_success_complete(self):
         pass
+
+    def s31_fail_complete(self):
+        pass
+
 
 
 def machine_find(bots, xs, ys, zs, dist, forced_check):
@@ -305,8 +275,7 @@ def find(bots, xs, ys, zs, dist, forced_count):
     return None, None
 
 
-def run_tests():
-    pass
+
 
 
 if __name__ == "__main__":

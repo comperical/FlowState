@@ -1,0 +1,28 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; SetupTargetSelectorData; SelectTarget; PollSelectQueue; SetupAttackData; AttackEnemyGroup; RemoveDeadGroup; PollAttackQueue
+node [shape=diamond] SuccessComplete; DrawComplete
+node [shape=ellipse] IsBattleStalemate; HaveAnotherSelector; HaveAnotherAttacker; HaveAttackTarget; HaveDeadGroup; BattleOver
+HaveAnotherSelector->SetupAttackData [label=F];
+SetupTargetSelectorData->HaveAnotherSelector ;
+HaveAnotherSelector->SelectTarget [label=T];
+HaveDeadGroup->PollAttackQueue [label=F];
+PollAttackQueue->HaveAnotherAttacker ;
+InitMachine->SetupTargetSelectorData ;
+BattleOver->SuccessComplete [label=T];
+IsBattleStalemate->DrawComplete [label=T];
+SetupAttackData->HaveAnotherAttacker ;
+PollSelectQueue->HaveAnotherSelector ;
+AttackEnemyGroup->HaveDeadGroup ;
+RemoveDeadGroup->BattleOver ;
+BattleOver->PollAttackQueue [label=F];
+HaveAnotherAttacker->IsBattleStalemate [label=F];
+HaveAttackTarget->PollAttackQueue [label=F];
+HaveDeadGroup->RemoveDeadGroup [label=T];
+IsBattleStalemate->SetupTargetSelectorData [label=F];
+HaveAnotherAttacker->HaveAttackTarget [label=T];
+SelectTarget->PollSelectQueue ;
+HaveAttackTarget->AttackEnemyGroup [label=T];
+overlap=false
+label=Machine_p24a
+fontsize=12
+}

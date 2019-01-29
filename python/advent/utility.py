@@ -27,7 +27,7 @@ def state_search(start, succfunc, goalfunc, breadth=True):
         nstate, prnt = stack.popleft() if breadth else stack.pop()
 
         if nstate in parents:
-            # Already explored, move on to next
+            #Already explored, move on to next
             continue
 
         # Log visitation of new state
@@ -38,7 +38,16 @@ def state_search(start, succfunc, goalfunc, breadth=True):
             goal = nstate
 
         # Extend the stack with all the ORDERED successors of the state
-        stack.extend([(succ, nstate) for succ in succfunc(nstate)])
+        successors = [(succ, nstate) for succ in succfunc(nstate)]
+        if not breadth:
+            successors = reversed(successors)
+
+        stack.extend(successors)
+        #stack.extend([(succ, nstate) for succ in succfunc(nstate)])
+
+    #for state, prnt in stack:
+    #    print("State ={}".format(state))
+
 
     return goal, parents
 

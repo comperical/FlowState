@@ -1,0 +1,16 @@
+digraph MyGraphName {
+node [shape=box] InitMachine; CheckNewTargets; PollProbeStack; AddNewTargets
+node [shape=diamond] SuccessComplete; FailComplete
+node [shape=ellipse] HaveAnotherProbe; FoundExactTarget
+HaveAnotherProbe->FailComplete [label=F];
+FoundExactTarget->AddNewTargets [label=F];
+FoundExactTarget->SuccessComplete [label=T];
+PollProbeStack->FoundExactTarget ;
+AddNewTargets->HaveAnotherProbe ;
+InitMachine->HaveAnotherProbe ;
+HaveAnotherProbe->CheckNewTargets [label=T];
+CheckNewTargets->PollProbeStack ;
+overlap=false
+label=Machine_p23compare
+fontsize=12
+}
