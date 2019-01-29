@@ -5,7 +5,6 @@ import sys
 from collections import deque
 import utility as U
 
-sys.path.append("..")
 from finite_state import *
 
 def mdist2origin(pt):
@@ -44,8 +43,6 @@ def count_for_point(bots, x, y, z, dist):
                 count += 1
 
     return count    
-
-
 
 
 class PMachine(FiniteStateMachine):
@@ -107,7 +104,6 @@ class PMachine(FiniteStateMachine):
         print("searching with bounds={}/{}, attempt={}".format(self.achieved_lower_bound, self.unachieved_upper_bound, self.attempt_reqd_count))
         self.initialize_probes()
 
-
     def s8_have_another_probe(self):
         return len(self.probes) > 0
 
@@ -132,7 +128,6 @@ class PMachine(FiniteStateMachine):
 
     def s14_poll_probe_stack(self):
         self.probes.popleft()
-
 
     def s16_found_exact_target(self):
         if len(self.newtargets) == 0:
